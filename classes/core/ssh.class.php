@@ -8,9 +8,9 @@ class SSH
 
     private $ssh_port = 22;
 
-    private $ssh_auth_user = 'Notulysses';
+    private $ssh_auth_user = '';
 
-    private $ssh_auth_pswd = '230693';
+    private $ssh_auth_pswd = '';
 
     private $connection;
 
