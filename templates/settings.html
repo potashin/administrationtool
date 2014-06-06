@@ -1,0 +1,113 @@
+<?php
+    extract($data);
+    if($type === 'Update'){
+        extract($COMMON);
+        $placeholder = isset($ID) ? "Inherited from {$APP_NAME}" : '';
+    }
+?>
+<div >
+    <div class="shadow area">
+        <h2><?php echo isset($APP_NAME) ? 'Application : ' . $APP_NAME : 'Add new application' ?></h2>
+        <?php echo isset($ID) ? '<h3>Instance : ' . $ID : '</h3>' ?>
+    </div>
+    <div class="shadow area">
+        <div id="settings" >
+            <div>
+                <p >Application ID</p>
+                <input name="APP_NAME"  <?php echo $type === 'Insert' ? '' : 'disabled' ?> type="text" value="<?php echo isset($APP_NAME) ? $APP_NAME : '' ?>">
+                <p >Enabled</p>
+                <input name="IS_ENABLED" type="checkbox" class="checkbox"  <?php echo (isset($IS_ENABLED) && $IS_ENABLED) == 'Y' ? 'checked' : '' ?>>
+            </div>
+            <div >
+                <p >Description</p>
+                <input name="DESCRIPTION" type="text" placeholder="<?php echo isset($placeholder) ? $placeholder : '' ?>"  value="<?php echo isset($DESCRIPTION) ? $DESCRIPTION : '' ?>">
+
+            </div>
+            <div >
+                <p >Path</p>
+                <input name="PATH" type="text" placeholder="<?php echo isset($placeholder) ? $placeholder : '' ?>" value="<?php echo isset($PATH) ? $PATH : '' ?>">
+            </div>
+            <div >
+                <p >Schedule</p>
+                <div>
+                    <select name="SCHEDULEID">
+                        <option ><?php echo isset($placeholder) ? $placeholder : '' ?></option>
+                        <?php foreach($SCHEDULES as $value): ?>
+                        <?php extract($value); ?>
+                        <option
+                            <?php if($ENABLED == 'Y'):
+                                echo 'selected';
+                                $selected_schedule = $SCHEDULE;
+                                endif;
+                            ?>
+                        >
+                        <?php echo $SCHEDULE ?>
+                        </option>
+                        <?php   endforeach; ?>
+                    </select>
+                    <button type="button" class="classname blue" onclick="showSchedules()">Show</button>
+                </div>
+            </div>
+            <div >
+                <p >Configuration</p>
+                <button type="button" class="classname blue"  onclick="showDetails(document.getElementById('Configuration'))">Show</button>
+                <textarea name="CONFIG" id="Configuration" style="display: none"><?php echo isset($config) ? $config : '' ?></textarea>
+            </div>
+
+        <?php if($type === 'Update'): ?>
+            <div >
+                <p >Hosts</p>
+                <span>
+                    <?php if(!empty($HOSTS)): ?>
+                    <?php foreach($HOSTS as $value): ?>
+                    <?php extract($value); ?>
+                    <?php if($ENABLED == 'Y'): ?>
+                    <span style="color: black"> <?php echo $HOSTID; ?></span>
+                    <?php elseif($ENABLED == 'N'): ?>
+                    <span style="color: red"> <?php echo $HOSTID; ?></span>
+                    <?php endif; ?>
+                    <?php   endforeach; ?>
+                    <?php else: ?>
+                    <span><?php echo $placeholder; ?></span>
+                    <?php endif ?>
+                </span>
+                <button type="button" class="classname blue" onclick="showHosts('<?php echo isset($APP_NAME) ? $APP_NAME : "" ?>')">Edit</button>
+            </div>
+            <div >
+                <?php if(!isset($ID)): ?>
+                    <p >Instances</p>
+                <span >
+                    <?php foreach($INSTANCES as $value): ?>
+                    <?php extract($value); ?>
+                    <?php if($IS_ATTACHED == 'Y'): ?>
+                    <span style="color: black"> <?php echo $INSTANCE; ?></span>
+                    <?php elseif($IS_ATTACHED == 'N'): ?>
+                    <span style="color: red"> <?php echo $INSTANCE; ?></span>
+                    <?php endif; ?>
+                    <?php   endforeach; ?>
+                </span>
+            <button type="button" class="classname blue" onclick="showInstances('<?php echo isset($APP_NAME) ? $APP_NAME : "" ?>')">Edit</button>
+            <?php endif; ?>
+            </div>
+            <div >
+                <p >Events</p>
+                <span >
+                    <?php foreach($EVENTS as $value): ?>
+                    <?php extract($value); ?>
+                    <?php if($MAPPED): ?>
+                    <span style="color: black"> <?php echo $EVENTNAME; ?></span>
+                    <?php elseif(!$MAPPED): ?>
+                    <span style="color: red"> <?php echo $EVENTNAME; ?></span>
+                    <?php endif; ?>
+                    <?php   endforeach; ?>
+                </span>
+                <button type="button" class="classname blue"  onclick="showEventsMapping('<?php echo isset($APP_NAME) ? $APP_NAME : "" ?>')">Edit</button>
+            </div>
+
+         <?php endif; ?>
+        </div>
+        <div style="padding:20px">
+            <button type="button" onclick="submitForm(document.getElementById('settings'),'<?php echo isset($type) ? $type : ""  ?>')"  class="classname blue">Submit</button>
+        </div>
+    </div>
+</div>

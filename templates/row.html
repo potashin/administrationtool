@@ -1,0 +1,47 @@
+<tr id="<?php echo $counter ?>">
+   <td>
+       <div style='margin: 0 auto;position:relative;width:30px;'>
+           <?php if($is_running=='Y'): ?>
+                <div  class='circle' style="background-color:green"></div>
+           <?php elseif ($is_running=='N'): ?>
+                <div  class='circle' style="background-color:red"></div>
+           <?php endif; ?>
+       </div>
+   </td>
+    <td><a class="link classic" href="http://administrating/Settings/Edit/Application/<?php echo $key ?>/Instance/<?php echo $instanceid ?>"><?php echo $instanceid ?></a></td>
+    <td><?php echo $description ?></td>
+    <?php if($is_running=='N'): ?>
+        <td >Нет данных</td>
+    <?php elseif($is_running=='Y') : ?>
+        <td ><?php echo $last_heartbeat ?></td>
+    <?php endif; ?>
+    <td><?php echo $eventtime ?></td>
+    <?php if($is_running=="N"&&($eventname=="Start"||$eventname=="Resume")): ?>
+        <td style="text-align: left;">
+            <select style="background-color:inherit;">
+                <?php foreach($hosts as $value): ?>
+                <option ><?php echo explode(":",$value)[0] ?></option>
+                <?php endforeach; ?>
+            </select>
+        </td>
+        <td ><button class='classname blue' onClick="doSSH('<?php echo $counter ?>')"><?php echo trim($eventname) ?></button></td>
+    <?php elseif($is_running=="Y"&&($eventname=="Stop"||$eventname=="Suspend")): ?>
+        <td >
+            <select disabled style="background-color:inherit;">
+                <option ><?php echo $host ?></option>
+            </select>
+        </td>
+        <td><button class='classname blue' onClick="doSSH('<?php echo $counter ?>')"><?php echo trim($eventname) ?></button></td>
+    <?php else:  ?>
+        <?php if($is_running=="Y"): ?>
+            <td >
+                <select disabled style="background-color:inherit;">
+                    <option ><?php echo $host ?></option>
+                </select>
+            </td>
+        <?php elseif($is_running=="N"): ?>
+            <td></td>
+        <?php endif; ?>
+    <td><?php echo $eventname ?></td>
+    <?php endif; ?>
+</tr>

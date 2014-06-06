@@ -1,0 +1,340 @@
+.circle {
+    margin: 0 auto;
+    width: 12px;
+    height: 12px;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    border:1px solid black
+}
+.shadow{
+    margin:20px;
+    text-align:center;
+    padding: 10px;
+    position: relative;
+    background-color:rgba(140, 140, 140,1);
+
+}
+.popup{
+    z-index:3;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: fixed;
+    background-color:rgba(140, 140, 140,0.3);
+    padding: 5% 0 0 0;
+    overflow: auto;
+}
+.tab{
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -khtml-border-radius: 15px;
+    border-radius: 15px;
+    border:1px solid black;
+    background-color:white;
+    margin: 0;
+}
+.tab_label{
+    -webkit-border-radius: 15px 15px 0 0;
+    -moz-border-radius: 15px 15px 0 0;
+    -khtml-border-radius: 15px 15px 0 0;
+    border-radius: 15px 15px 0 0;
+    border-style:solid ;
+    border-color: black;
+    border-width: 1px 1px 0px 1px;
+    background-color:white;
+    bottom:-1px;
+    margin: 0 auto;
+    z-index: 4;
+    width:40%;
+}
+.area{
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -khtml-border-radius: 15px;
+    border-radius: 15px;
+}
+.back{
+    padding: 10px;
+    margin: 0 auto;
+    top: 10px;
+    position: relative;
+    /*background-color: rgba(32,124,202,1);*/
+    background-image: url('../images/menu.png');
+    box-shadow: 0 0 20px black ;
+    -moz-box-shadow: 0 0 20px black;
+    -webkit-box-shadow: 0 0 20px black;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -khtml-border-radius: 15px;
+    border-radius: 15px;
+}
+.classname {
+
+    padding: 3px 15px;
+    height:24px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-family: helvetica, serif;
+    text-decoration: none;
+    vertical-align: middle;
+    color: black;
+    background: transparent;
+    border: 1px solid black;
+
+}.classname:hover{
+     color: #fff;
+ } .classname:active {
+      position:relative;
+      top:1px;
+  }
+
+  .green{
+      background: #78a809;
+  }
+  .red{
+      margin-left: 5px;
+      background: #b82121;
+
+  }
+  .blue{
+      background: #1d7de3;
+  }
+input {
+    text-align: center;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid black ;
+    height: 21px;
+    width:90%;
+    outline:none;
+    padding:0 3px;
+    font-size: 15px;
+    font-family: Times;
+
+}input:focus{
+     border: 1px solid #89c403;
+     box-shadow: 0 0 5px #89c403 ;
+     -moz-box-shadow: 0 0 5px #89c403;
+     -webkit-box-shadow: 0 0 5px #89c403;
+ }input:disabled{
+       border: 0px;
+   }
+
+
+.closeSub{
+    float:right;
+    clear: left;
+    height:30px;
+    width:30px;
+    visibility:visible;
+    margin: 0;
+
+}
+.one {
+    position:absolute;
+    background-color:rgba(170,170,170,1);
+    width:10px;
+    height:30px;
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    filter:progid:DXImageTransform.Microsoft.Matrix(M11='0.707', M12='0.707', M21='-0.707', M22='0.707', SizingMethod="auto expand");
+}
+.two {
+    position:absolute;
+    background-color:rgba(170,170,170,1);
+    width:10px;
+    height:30px;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    filter:
+        progid:DXImageTransform.Microsoft.Matrix(M11='0.707', M12='0.707', M21='-0.707', M22='0.707', SizingMethod="auto expand");
+}
+
+.closeSub:hover .one{
+    background-color:#1d7de3;
+}
+.closeSub:hover .two{
+    background-color:#1d7de3;
+}
+.vis{
+    visibility: hidden;
+}
+tr:hover .vis{
+    visibility: visible;
+}
+
+select{
+    font-family: Times;
+    font-size: 15px;
+    color: black;
+    height: 23px;
+    -webkit-appearance: none;
+    padding: 0 10px;
+    margin:0 10px;
+    border:1px solid black;
+}
+.link{
+    font:15px serif;
+    background-color: transparent;
+    border:0px;
+    display: block;
+    cursor: pointer;
+}
+
+.classic{
+    color:black;
+    font-weight: bold;
+    text-decoration: underline;
+}.classic:hover{
+     text-decoration: none;
+ }
+
+.styled{
+    font-weight: bold;
+    color:black;
+    text-decoration: none;
+}
+
+ .angle{
+     border-left: 4px solid #1d7de3;
+     padding: 0px;
+     margin-top: 20px;
+     z-index: 10;
+ }
+ .error{
+     padding: 15px;
+     font:14px serif;
+     font-weight: bold;
+     background-color:rgba(70, 70, 70,0.8);
+     position: fixed;
+     width: 30%;
+     z-index:50;
+     top:0;
+     left:0;
+     border-bottom-right-radius: 15px;
+     -webkit-border-bottom-right-radius: 15px;
+     -moz-border-radius-bottomright: 15px;
+     -khtml-border-bottom-right-radius:15px;
+
+     text-align: left;
+     word-wrap: break-word;
+     display: none;
+ }
+ .details {
+     padding: 10px;
+     font:15px serif;
+     font-weight: bold;
+     margin:0;
+     width:100%;
+     height:100%;
+     border:0;
+     background: transparent;
+     text-align: right;
+ }
+ .details:hover{
+     cursor: pointer;
+ }
+
+input[type="checkbox"]{
+    width:20px;
+    height:15px;
+}
+
+.wordwrap {
+    word-wrap: break-word;
+}
+table {
+    width:100%;
+    table-layout: fixed ;
+    word-break:break-all;
+    word-wrap:break-word;
+    text-align: center;
+}
+
+textarea{
+    position: relative;
+    resize: none;
+    font-size: 16px;
+    font-family: Times;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    border: 0;
+    padding: 1%;
+    margin: 0;
+    width: 98%;
+    height:100px;
+    border:1px solid #333;
+}
+
+body{
+    font-size: 15px;
+    font-family: Times;
+}
+h4,h5,h6{
+    display: inline;
+    margin: 0;
+}
+
+h3{
+    margin:5px;
+}
+h2{
+    margin: 0;
+}
+
+
+#settings{
+    display: table;
+    margin: 0 auto;
+}
+
+#settings > div{
+    display: table-row;
+    line-height: 30px;
+    text-align: left;
+    margin:0 20px;
+}
+
+#settings > div p{
+    font-weight: bold;
+}
+
+#settings > div > :nth-child(n){
+    display: table-cell;
+    margin: 0 10px;
+}
+
+#settings > div input[type="text"]{
+    min-width: 400px;
+}
+
+#settings > div textarea{
+    max-width: 400px;
+}
+
+#settings > div > span{
+    padding:0 10px;
+}
+
+#settings h3{
+    cursor: pointer;
+    display: block;
+    padding: 10px 0;
+}
+
+#settings span > span:not(:last-of-type):after{
+    content: ', ';
+    color:black;
+}
+
+
