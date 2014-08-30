@@ -57,6 +57,7 @@ function hostContainer(parameters,data,type){
 }
 
 function scheduleContainer(data,selected){
+    var select = selectContainer(data.content.ID,data.content.DESCRIPTION,selected);
     var container = document.createElement('div');
     container.innerHTML =
             '<div style="margin:0 auto;display: table;">' +
@@ -66,7 +67,7 @@ function scheduleContainer(data,selected){
                 '<div style="display:table-cell;width: 200px">' +
                 '</div>' +
                 '<div style="display:table-cell;width:100px;">' +
-                    '<button class="classname blue" style="float: left;" onClick="getData(\'SC\',\'Schedules\',null)">Add</button>' +
+                    '<button class="classname blue" style="float: left;" onClick="getData(\'SA\',\'Add Schedule\',null)">Add</button>' +
                 '</div>' +
             '</div>' +
             '<div  style="display:none;padding: 5px 0;">' +
@@ -78,11 +79,11 @@ function scheduleContainer(data,selected){
                         '<input disabled id="schedule_state" style="float: left;" type="checkbox" class="checkbox">' +
                     '</div>' +
                     '<div style="display:table-cell;width:100px;">' +
-                        '<button class="classname blue" style="float: left;" onClick="getData(\'SC\',\'Schedules\',null)">Edit</button>' +
+                        '<button class="classname blue" style="float: left;" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#Subsidiary_head select\'))">Edit</button>' +
                     '</div>' +
                 '</div>' +
             '</div>';
-    var select = selectContainer(data.content.ID,data.content.DESCRIPTION,selected);
+
     select.onchange = function(){getData('LE', null, select)}
     select.style.float = 'left'
     for(var i in select.options){

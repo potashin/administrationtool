@@ -130,6 +130,7 @@ function getData(type,name,object){
         case 'AI' : object = JSON.parse(object)
                     parameters = object
                     break
+        case 'SC' :
         case 'LE' : parameters.SCHEDULE = object.value
                     break
 
@@ -263,6 +264,8 @@ function postInput(parameters,element,type,action){
                             getData(type, document.querySelector('#Subsidiary h2').innerHTML, document.querySelector('#Subsidiary_head select'))
                         }else if(type != 'AS' && type != 'IS' && type != 'AH' && type != 'IH'){
                             getData(type, document.getElementById('Subsidiary').children[0].id, viewParam)
+                        } else if (type == 'AS' || type == 'IS'){
+                            location.reload()
                         }
 
                     }else {

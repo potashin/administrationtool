@@ -135,7 +135,18 @@
 					break;
 				case 'SC' :
 					$query = "SELECT *
-								  FROM SCHEDULES";
+								  FROM SCHEDULES
+						      WHERE ID = :SCHEDULE";
+
+					$dataObject->action['INSERT'] = false;
+					break;
+				case 'SA' :
+					$query = "SELECT *
+								  FROM SCHEDULES
+							  WHERE 1 <> 1";
+
+					$dataObject->action['UPDATE'] = false;
+					$dataObject->action['DELETE'] = false;
 					break;
 				default :
 					return 'Undefined show request';
@@ -176,6 +187,7 @@
 				case 'LH' :
 					$procedure = "MAP_HOST";
 					break;
+				case 'SA' :
 				case 'SC' :
 					$procedure = "ATTACH_SCHEDULE";
 					break;
