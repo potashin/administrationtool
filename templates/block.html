@@ -1,59 +1,115 @@
-<?php if($value['PENDING'] == 0): ?>
-    <div class = "shadow area" style="padding: 0;background:mediumseagreen">
-<?php else: ?>
-    <div class = "shadow area" style="padding: 0;background:indianred;">
-<?php endif; ?>
-        <div >
-            <div class="label" style="position: absolute;z-index: 2;margin: 10px" >
-                <a class="link classic" href="http://administrating/Settings/Edit/Application/<?php echo $key ?>"><?php echo $key ?></a>
-            </div>
-            <div >
-                <button class="details"   onclick="showDetails(this.parentNode.parentNode.parentNode.children[1])">
-                    <span style ="padding: 10px">Instances — Total: <?php echo $value['TOTAL'] ?></span>
-                    <?php if($value['RUNNING'] > 0): ?>
-                    <span style ="padding: 10px;color:darkgreen">Launched: <?php echo $value['RUNNING'] ?></span>
-                    <?php else: ?>
-                    <span style ="padding: 10px;color: black">Launched: <?php echo $value['RUNNING'] ?></span>
-                    <?php endif; ?>
-                    <?php if($value['PENDING'] > 0): ?>
-                    <span style ="padding: 10px;color: darkred">Pending: <?php echo $value['PENDING'] ?></span>
-                    <?php else: ?>
-                    <span style ="padding: 10px;color:black">Pending: <?php echo $value['PENDING'] ?></span>
-                    <?php endif; ?>
-                </button>
-            </div>
-        </div>
-        <div  style="display:block;">
-            <table border=0 cellpadding="5" >
-                <col style="width:5%;">
-                <col style="width:10%;">
-                <col style="width:15%;">
-                <col style="width:20%;">
-                <col style="width:15%;">
-                <col style="width:20%">
-                <col style="width:15%">
-                <thead>
-                    <tr>
-                        <th>State</th>
-                        <th>Instance</th>
-                        <th>Description</th>
-                        <th>HeartBeat</th>
-                        <th>Scheduled at</th>
-                        <th>Host</th>
-                        <th>Pending action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php $row_data = $value['DATA'] ?>
-                <?php foreach($row_data as $current): ?>
-                    <?php
-                        $current = array_change_key_case($current,  CASE_LOWER);
-                        extract($current);
-                        include ('./Templates/row.html');
-                        $counter++;
-                    ?>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-</div>
+<?php
+	if (intval($value['SUMMARY']['TOTAL']) > 0)
+	{
+		if ($value['SUMMARY']['PENDING'] == 0)
+		{
+?>
+	<div class="shadow area" style="padding: 0;background:mediumseagreen">
+<?php
+		}
+		else
+		{
+?>
+	<div class="shadow area" style="padding: 0;background:indianred;">
+<?php
+			}
+		}
+		elseif (intval($value['SUMMARY']['TOTAL']) == 0)
+		{
+?>
+		<div class="shadow area" style="padding: 0;height:37px">
+<?php
+		}
+?>
+			<?php
+				$object = array();
+				$object['APP_NAME'] = $value['SUMMARY']['APP_NAME'];
+			?>
+		<div class="label" style="position: absolute;z-index: 2;margin: 5px">
+			<!--<a class="link classic"
+			   href="http://administrating/Settings/Show/Application/<?php echo $value['SUMMARY']['APP_NAME'] ?>"><?php echo $value['SUMMARY']['APP_NAME'] ?></a>
+			-->
+			<button class="link classic" onclick="getData('AS','Application Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
+				<?php echo $value['SUMMARY']['APP_NAME'] ?>
+			</button>
+		</div>
+<?php
+		if (intval($value['SUMMARY']['TOTAL']) > 0)
+		{
+?>
+		<div>
+			<button class="details"
+			        onclick="showDetails(this.parentNode.parentNode.children[2])">
+				<span style="padding: 10px">Instances — Total: <?php echo $value['SUMMARY']['TOTAL'] ?></span>
+<?php
+					if ($value['SUMMARY']['LAUNCHED'] > 0)
+					{
+						?>
+						<span
+							style="padding: 10px;color:darkgreen">Launched: <?php echo $value['SUMMARY']['LAUNCHED'] ?></span>
+<?php
+					}
+					else
+					{
+?>
+						<span
+							style="padding:10px;color:black">Launched: <?php echo $value['SUMMARY']['LAUNCHED'] ?></span>
+<?php
+					}
+					if ($value['SUMMARY']['PENDING'] > 0)
+					{
+?>
+						<span
+							style="padding: 10px;color: darkred">Pending: <?php echo $value['SUMMARY']['PENDING'] ?></span>
+<?php
+					}
+					else
+					{
+?>
+						<span
+							style="padding: 10px;color:black">Pending: <?php echo $value['SUMMARY']['PENDING'] ?></span>
+<?php
+					}
+?>
+			</button>
+		</div>
+<?php
+			}
+			if (intval($value['SUMMARY']['TOTAL']) > 0 and isset($value['CONTENT']))
+			{
+?>
+			<div style="display: none">
+				<table border=0 cellpadding="5">
+					<col style="width:5%;">
+					<col style="width:10%;">
+					<col style="width:15%;">
+					<col style="width:20%;">
+					<col style="width:15%;">
+					<col style="width:20%">
+					<col style="width:15%">
+					<thead>
+					<tr>
+						<th>State</th>
+						<th>Instance</th>
+						<th>Description</th>
+						<th>HeartBeat</th>
+						<th>Scheduled at</th>
+						<th>Host</th>
+						<th>Pending action</th>
+					</tr>
+					</thead>
+					<tbody>
+<?php
+						foreach ($value['CONTENT'] as $v)
+						{
+							include('./templates/row.html');
+							$counter++;
+						}
+?>
+					</tbody>
+				</table>
+			</div>
+<?php
+			}
+?>
+		</div>

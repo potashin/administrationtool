@@ -1,47 +1,78 @@
 <tr id="<?php echo $counter ?>">
-   <td>
-       <div style='margin: 0 auto;position:relative;width:30px;'>
-           <?php if($is_running=='Y'): ?>
-                <div  class='circle' style="background-color:green"></div>
-           <?php elseif ($is_running=='N'): ?>
-                <div  class='circle' style="background-color:red"></div>
-           <?php endif; ?>
-       </div>
-   </td>
-    <td><a class="link classic" href="http://administrating/Settings/Edit/Application/<?php echo $key ?>/Instance/<?php echo $instanceid ?>"><?php echo $instanceid ?></a></td>
-    <td><?php echo $description ?></td>
-    <?php if($is_running=='N'): ?>
-        <td >Нет данных</td>
-    <?php elseif($is_running=='Y') : ?>
-        <td ><?php echo $last_heartbeat ?></td>
-    <?php endif; ?>
-    <td><?php echo $eventtime ?></td>
-    <?php if($is_running=="N"&&($eventname=="Start"||$eventname=="Resume")): ?>
-        <td style="text-align: left;">
-            <select style="background-color:inherit;">
-                <?php foreach($hosts as $value): ?>
-                <option ><?php echo explode(":",$value)[0] ?></option>
-                <?php endforeach; ?>
-            </select>
-        </td>
-        <td ><button class='classname blue' onClick="doSSH('<?php echo $counter ?>')"><?php echo trim($eventname) ?></button></td>
-    <?php elseif($is_running=="Y"&&($eventname=="Stop"||$eventname=="Suspend")): ?>
-        <td >
-            <select disabled style="background-color:inherit;">
-                <option ><?php echo $host ?></option>
-            </select>
-        </td>
-        <td><button class='classname blue' onClick="doSSH('<?php echo $counter ?>')"><?php echo trim($eventname) ?></button></td>
-    <?php else:  ?>
-        <?php if($is_running=="Y"): ?>
-            <td >
-                <select disabled style="background-color:inherit;">
-                    <option ><?php echo $host ?></option>
-                </select>
-            </td>
-        <?php elseif($is_running=="N"): ?>
-            <td></td>
-        <?php endif; ?>
-    <td><?php echo $eventname ?></td>
-    <?php endif; ?>
+	<td>
+		<div style='margin: 0 auto;position:relative;width:30px;'>
+			<div class='circle'  style="background-color:
+			<?php
+				if ($v['IS_RUNNING'] == 'Y' and intval($v['HB_DELTA']) < 15) echo 'green';
+				elseif ($v['IS_RUNNING'] == 'Y' and intval($v['HB_DELTA']) > 15) echo 'orange';
+				elseif ($v['IS_RUNNING'] == 'N') echo 'red';
+			?>
+				"></div>
+		</div>
+	</td>
+	<td><?php $object['INSTANCEID'] = $v['INSTANCEID'];?><!--<a class="link classic"
+	       href="http://administrating/Settings/Show/Application/<?php echo $value['SUMMARY']['APP_NAME'] ?>/Instance/<?php echo $v['INSTANCEID'] ?>"><?php echo $v['INSTANCEID'] ?></a>
+		-->
+		<button class="link classic" onclick="getData('IS','Instance Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
+			<?php echo $v['INSTANCEID'] ?>
+		</button>
+	</td>
+	<td><?php echo $v['DESCRIPTION'] ?></td>
+	<td data-stamp="LAST_HEARTBEAT" ><?php echo $v['LAST_HEARTBEAT'] == '' ? 'Нет данных' : $v['LAST_HEARTBEAT'] ?></td>
+	<td><?php echo $v['EVENTTIME'] ?></td>
+	<?php if ($v['IS_RUNNING'] == "N" and ($v['EVENTNAME'] == "Start" or $v['EVENTNAME'] == "Resume"))
+	{
+		?>
+		<td style="text-align: left;">
+			<select style="background-color:inherit;">
+			<?php
+				foreach ($v['HOSTS'] as $key => $option)
+				{
+			?>
+					<option value="<?php echo $option ?>" label="<?php echo $v['HOSTS_DESC'][$key] ?>"></option>
+			<?php
+				}
+			?>
+			</select>
+		</td>
+		<td>
+			<button class='classname blue'
+			        onClick="doSSH('<?php echo $counter ?>','<?php echo $value['SUMMARY']['APP_NAME'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
+		</td>
+	<?php
+	}
+	elseif ($v['IS_RUNNING'] == "Y" && ($v['EVENTNAME'] == "Stop" || $v['EVENTNAME'] == "Suspend"))
+	{
+		?>
+		<td>
+			<select disabled style="background-color:inherit;">
+				<option><?php echo $v['HOST'] ?></option>
+			</select>
+		</td>
+		<td>
+			<button class='classname blue'
+			        onClick="doSSH('<?php echo $counter ?>','<?php echo $value['SUMMARY']['APP_NAME'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
+		</td>
+	<?php
+	}
+	else
+	{
+		?>
+		<?php if ($v['IS_RUNNING'] == "Y")
+	{
+		?>
+		<td>
+			<select disabled style="background-color:inherit;">
+				<option value="<?php echo $v['RUNNING'] ?>"><?php echo $v['RUNNING_DESC'] ?></option>
+			</select>
+		</td>
+	<?php
+	}
+	elseif ($v['IS_RUNNING'] == "N")
+	{
+		?>
+		<td></td>
+	<?php } ?>
+		<td><?php echo $v['EVENTNAME'] ?></td>
+	<?php } ?>
 </tr>

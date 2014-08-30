@@ -1,5 +1,6 @@
 <?php
     set_include_path(__DIR__);
+	include('./config/config.php');
     spl_autoload_extensions('.class.php');
 	spl_autoload_register();
 	spl_autoload_register(

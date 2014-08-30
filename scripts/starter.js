@@ -1,10 +1,3 @@
-function showSettings(id){
-    var settings = document.getElementById(id);
-    var list = settings.children[1].style.display;
-    settings.children[1].style.display = list=="block"?"none":"block";
-}
-
-
 function getXmlHttp(){
     var xmlhttp;
     try {
@@ -26,25 +19,27 @@ function getXmlHttp(){
     return xmlhttp;
 }
 
-function doSSH(id)
+function doSSH(id,app)
 {
     var row = document.getElementById(id);
     var xmlhttp = getXmlHttp();
-    var parameters = {};
-    parameters.host = row.cells[5].children[0].value;
-    parameters.id = row.cells[1].innerHTML;
+    var parameters = {
+        'HOST' : row.querySelector('select').value,
+        'APP_NAME' : app,
+        'INSTANCE' : row.querySelector('a').innerHTML,
+        'COMMAND' : row.querySelector('button').innerHTML
+    };
     var json = JSON.stringify(parameters);
     var par = "data="+encodeURIComponent(json);
     var ee = document.getElementById("error");
     ee.style.color = "white";
     ee.innerHTML = "Loading...";
     ee.style.display = "block";
-    xmlhttp.open('POST','http://administrating/Remote/Execute', true);
+    xmlhttp.open('POST','http://administrating/Remote/Execute/', true);
     xmlhttp.onreadystatechange=function(){
       if (xmlhttp.readyState == 4){
          if(xmlhttp.status == 200){
-             ee.innerHTML = xmlhttp.responseText;
-             //closeMsg();
+             closeMsg(xmlhttp.responseText,'black');
          }
         }
       };
@@ -52,21 +47,11 @@ function doSSH(id)
     xmlhttp.send(par);
 }
 
-function closeMsg()
-{
-    setTimeout(function(){document.getElementById('error').style.display='none';location.reload()},2000);
-}
-
 function correctAllDates(){
-    var tables = document.getElementsByTagName("TABLE");
-    for(var q = 0;q<tables.length-1;q++){
-        var table = tables[q];
-        var max = table.rows.length;
-        for(var i=1;i<max;i++){
-            var date = table.rows[i].cells[3].innerHTML;
-            if(date != "Нет данных"){
-                table.rows[i].cells[3].innerHTML = correctDate(date);
-            }
+    var td = document.querySelectorAll('td[data-stamp="LAST_HEARTBEAT"]')
+    for(var q = 0;q < td.length;q++){
+        if( td[q].innerHTML != "Нет данных"){
+            td[q].innerHTML = correctDate(td[q].innerHTML)
         }
     }
 }
@@ -106,49 +91,197 @@ function correctDate(date){
     return newDate;
 }
 
-function getData(type,name){
-    if(document.getElementById('Subsidiary') != null) {
-        var block = document.getElementById('Subsidiary')
+function closeMsg(message,color)
+{
+    var ee = document.getElementById("error")
+    ee.innerHTML = message
+    ee.color = color
+    ee.style.display = "block"
+
+    setTimeout(
+        function(){
+            document.getElementById('error').style.display='none';
+        },5000
+    )
+}
+
+function createPopup(id){
+    if(document.getElementById(id) != null) {
+        var block = document.getElementById(id)
         block.parentNode.removeChild(block);
     }
     var block = document.body.appendChild(document.createElement('div'));
-    block.id = 'Subsidiary'
+    block.id = id
     block.className = 'popup'
-    /*var table = document.getElementById("popup_table");
-    while(table.children.length){
-        table.removeChild(table.children[table.children.length-1])
+    block.style.display = 'table'
+    return block
+}
+
+function getData(type,name,object){
+    var parameters = {}
+    var post = null
+    switch(type){
+        case 'IH' :
+        case 'IE' :
+        case 'AH' :
+        case 'AE' :
+        case 'IS' :
+        case 'AS' :
+        case 'AI' : object = JSON.parse(object)
+                    parameters = object
+                    break
+        case 'LE' : parameters.SCHEDULE = object.value
+                    break
+
+        default : parameters = {}
     }
-    document.getElementById("infoArea").children[0].innerHTML = name;
-    document.getElementById("popup").style.display = "block";*/
-    var xmlhttp = getXmlHttp();
-    xmlhttp.open('GET', 'http://administrating/Popup/Get/Target/' + type.toUpperCase(),true);
+    var xmlhttp = getXmlHttp()
+    var affix = 'Popup/Show/Type/';
+    xmlhttp.open('POST', 'http://administrating/' + affix  + type,true)
+    if(object != null && type !='SH'){
+        var json = JSON.stringify(parameters)
+        post = "data=" + encodeURIComponent(json)
+    }
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4) {
             if(xmlhttp.status == 200) {
                 var json = xmlhttp.responseText;
                 try{
                     var response = JSON.parse(json);
+                    if(type == 'AS' || type == 'IS' || type == 'CS'){
+                        var block = createPopup('popup')
+                        var frame = createFrame(name,'popup')
+                        block.appendChild(frame)
+                        var content = document.getElementById('popup_content')
+                        var table = appForm(response,type,parameters)
+                        location.hash = affix + name.replace(/ /g, '')
+                        content.appendChild(table)
+                    }else if(type != 'LE'){
+                        location.hash = affix + name.replace(/ /g, '')
+                        var block = createPopup('Subsidiary')
+                        var frame = createFrame(name,'Subsidiary')
+                        block.appendChild(frame)
+                        var table
+                        var content = document.getElementById('Subsidiary_content')
+                        var head = document.getElementById('Subsidiary_head')
+                        if(type == 'SH') {
+                            table = scheduleContainer(response,object.value)
+                            head.appendChild(table)
+                            getData('LE',null,head.querySelector('select'))
 
-
-                    var frame = createFrame(name)
-                    block.appendChild(frame)
-                    var content = document.getElementById('content')
-                    var table = createTable(response,type)
-                    content.appendChild(table)
+                        } else if (type == 'AH' || type == 'IH') {
+                            table = hostContainer(parameters,response,type)
+                            content.appendChild(table)
+                        }else {
+                            table = createTable(response,type,parameters)
+                            content.appendChild(table)
+                        }
+                    }else {
+                        var head = document.getElementById('Subsidiary_head')
+                        head.children[0].children[1].style.display = 'block'
+                        document.getElementById('schedule_state').checked = object.options[object.selectedIndex].title == "Y" ? true : false
+                        var content = document.getElementById('Subsidiary_content')
+                        var table = createTable(response,type,parameters)
+                        content.appendChild(table)
+                    }
                 }catch(e){
-                    var ee = document.getElementById("error");
-                    ee.innerHTML = json;
-                    ee.style.display = "block";
-                    //closeMsg();
-                    return;
+                    closeMsg(json,'red');
                 }
             }
         }
     };
-    xmlhttp.send(null);
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+    xmlhttp.send(post)
 }
 
-function saveChanges(type,name){
+function enableInput(parameters,element,type,action){
+    var p = {}
+    var button = element.querySelector('button[class*=blue]')
+    for(var i in parameters){
+        p[i] = parameters[i]
+    }
+    button.innerHTML = "Update"
+
+    var edt = function(){
+        return postInput(p,element,type,action)
+    }
+    button.onclick = edt
+    var input = element.querySelectorAll('input[name],textarea,select')
+    for(var i = 0; i < input.length;i++){
+        input[i].disabled = false
+    }
+
+}
+
+
+function collectInput(element,parameters){
+    var p = {}
+    for(var i in parameters){
+        p[i] = parameters[i]
+    }
+    var input = element.querySelectorAll('input[name],textarea,select')
+    for(var i = 0; i < input.length ; i++){
+        var value = input[i].name == 'IS_ENABLED' ? ( input[i].checked === true ? 'Y' : 'N' ) : input[i].value
+        p[input[i].name] = value
+    }
+    return p
+
+}
+
+function postInput(parameters,element,type,action){
+    var viewParam = {}
+    if(parameters.length > 0){
+        for(var i = 0; i < parameters.length ; i++){
+            viewParam[i] = parameters[i]
+        }
+    }else{
+        viewParam = null
+    }
+    if(parameters.hasOwnProperty('APP_NAME') && !parameters.hasOwnProperty('INSTANCEID')){
+        parameters.INSTANCEID = null
+    }
+    var input
+    if(input = element.querySelector('input[name=TYPE]')){
+        input.value = action
+    }
+
+    var parameters = collectInput(element,parameters)
+    var json = JSON.stringify(parameters);
+    var par = "data=" + encodeURIComponent(json);
+    var xmlhttp = getXmlHttp();
+    xmlhttp.open('POST','http://administrating/Popup/Perform/Type/' + type, true);
+    xmlhttp.onreadystatechange=function(){
+        if (xmlhttp.readyState == 4){
+            if(xmlhttp.status == 200){
+                var json = xmlhttp.responseText
+                try{
+                    if(json == ''){
+                        if(type != 'AS' && type != 'IS' && type != 'AH' && type != 'IH'){
+                            var input = element.querySelectorAll('input,textarea,select')
+                            for(var i = 0; i < input.length ; i++){
+                                input[i].disabled = true
+                            }
+                            getData(type, document.getElementById('header_name').innerHTML, viewParam)
+                        }
+
+                    }else {
+                        throw 'Error'
+                    }
+                }catch(e){
+                    closeMsg(json,'red');
+                }
+            }
+        }
+    };
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlhttp.send(par);
+}
+
+function showDetails(element){
+    element.style.display = element.style.display == 'none' ? 'block' : 'none';
+}
+
+/*function saveChanges(type,name){
     var table = document.getElementById("popup").getElementsByTagName("table")[0];
     var info = {};
     var columns = table.rows[0].cells.length-1 ;
@@ -187,7 +320,7 @@ function saveChanges(type,name){
 
 }
 
-function deleteRow(number,type,name){
+/*function deleteRow(number,type,name){
     var table = document.getElementById("popup").getElementsByTagName("table")[0];
     var info = {};
     for(var i = 0;i<table.rows[number].cells.length-1;i++){
@@ -224,66 +357,49 @@ function deleteRow(number,type,name){
 
 }
 function editPushed(number,type,name){
-    var table = document.getElementById("popup").getElementsByTagName("table")[0];
+    var table = document.querySelector('table#content_table');
     var info = {};
+    var input = table.rows[number].querySelectorAll('input, select')
+    for(var i = 0; i < input.length ; i++){
+        if(input[i].type == 'checkbox') {
+            info['BEFORE_' + table.rows[0].cells[i].innerHTML] = (input[i].checked === true ? 'Y' : 'N')
+        } else {
+            info['BEFORE_' + table.rows[0].cells[i].innerHTML] = input[i].value
+        }
+        input[i].disabled = false
+    }
     var container = document.createElement("button");
     container.className = "classname vis blue";
     container.innerHTML = "Save";
     var edt = function(){
-        editRow(number,type,info,name);
+        edit(number,type,info,name);
         return false;
     };
-    container.onclick = edt;
-    for(var i = 0;i<table.rows[number].cells.length;i++){
-        var cell = table.rows[number].cells[i];
-        if(i != table.rows[0].cells.length-1){
-            var field = table.rows[0].cells[i].innerHTML;
-            if(field == 'IS_ENABLED'){
-                info['BEFORE_' + field] = cell.children[0].children[0].checked == true ? 'Y' : 'N';
-                cell.children[0].children[0].disabled = false;
-                continue;
-            }
-            var example = table.rows[table.rows.length-1].cells[i].children[0].cloneNode(true);
-            info['BEFORE_' + field] = cell.innerHTML;
-            cell.innerHTML = "";
-            cell.appendChild(example);
-            if(cell.getElementsByTagName("option")[0] != null){
-                var options = cell.getElementsByTagName("option");
-                for(var k in options){
-                    if(options[k].innerHTML === info['BEFORE_' + field]){
-                        options[k].innerHTML = "";
-                    }else if (k == 0){
-                        options[k].innerHTML = info['BEFORE_' + field];
-                    }
-                }
-            }else{
-                var input = cell.getElementsByTagName("input")[0].value = info['BEFORE_' + field];
-            }
-        }else{
-            cell.replaceChild(container,cell.children[0]);
-        }
-
-    }
+    container.onclick = edt
+    table.rows[number].cells[input.length].querySelector('div').style.display = 'none'
+    table.rows[number].cells[input.length].appendChild(container);
 }
-function editRow(number,type,before,name){
-    var table = document.getElementById("popup").getElementsByTagName("table")[0];
+
+
+
+function edit(number,type,before,name){
+    var table = document.querySelector('table#content_table');
     var after = {};
-    for(var i = 0;i<table.rows[number].cells.length-1;i++){
-        var field = table.rows[0].cells[i].innerHTML;
-        if(table.rows[0].cells[i].innerHTML == 'IS_ENABLED') {
-            var state = table.rows[number].cells[i].children[0].children[0].checked;
-            after['AFTER_' + field] = state == true ? 'Y' : 'N';
-        } else{
-            after['AFTER_' + field] = table.rows[number].cells[i].children[0].children[0].value;
+    var input = table.rows[number].querySelectorAll('input, select, textarea')
+    for(var i = 0; i < input.length ; i++){
+        if(input[i].type == 'checkbox') {
+            after['AFTER_' + table.rows[0].cells[i].innerHTML] = (input[i].checked === true ? 'Y' : 'N')
+        } else {
+            after['AFTER_' + table.rows[0].cells[i].innerHTML] = input[i].value
         }
     }
     for (var key in before){
         after[key] = before[key];
     }
     var json = JSON.stringify(after);
-    var par = "data="+encodeURIComponent(json);
+    var par = "data=" + encodeURIComponent(json);
     var xmlhttp = getXmlHttp();
-    var url = 'http://administrating/Popup/Update/Target/' + type.toUpperCase();
+    var url = 'http://administrating/';
     xmlhttp.open('POST', url ,true);
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4) {
@@ -291,7 +407,9 @@ function editRow(number,type,before,name){
                 var json = xmlhttp.responseText;
                 try{
                     var response = JSON.parse(json);
-                    for(var i = 0;i<table.rows[number].cells.length;i++){
+                    table.rows[number].cells[input.length].removeChild(table.rows[number].cells[input.length].querySelector('button'))
+                    table.rows[number].cells[input.length].querySelector('div').style.display = 'block'
+                    /*for(var i = 0;i<table.rows[number].cells.length;i++){
                         var cell = table.rows[number].cells[i];
                         if(i==table.rows[number].cells.length-1){
                             var child = cell.children[0];
@@ -355,219 +473,4 @@ function editRow(number,type,before,name){
     };
     xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xmlhttp.send(par);
-}
-
-/*function getHeartBeat(){
-    var xmlhttp = getXmlHttp();
-    xmlhttp.open('GET', 'http://administrating/Monitor/',true);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var json = xmlhttp.responseText;
-                try{
-                    var response = JSON.parse(json);
-                }catch (e){
-                    //location.reload();
-                }
-            }
-        }
-    };
-    xmlhttp.send(null);
 }*/
-
-function showDetails(element){
-    element.style.display = element.style.display == 'none' ? 'block' : 'none';
-}
-
-
-function showSchedules(){
-    if(document.getElementById('Subsidiary') != null) {
-        var block = document.getElementById('Subsidiary')
-        block.parentNode.removeChild(block);
-    }
-    var block = document.body.appendChild(document.createElement('div'));
-    block.id = 'Subsidiary'
-    block.className = 'popup'
-    var xmlhttp = getXmlHttp();
-    xmlhttp.open('GET', 'http://administrating/Popup/Get/Target/SCHEDULES',true);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var json = xmlhttp.responseText;
-                try{
-                    var response = JSON.parse(json);
-
-                    var frame = createFrame('Schedules')
-                    block.appendChild(frame);
-                    var content = document.getElementById('head')
-                    var select = scheduleContainer(response);
-                    content.appendChild(select);
-                }catch (e){
-                    return false;
-                }
-            }
-        }
-    };
-    xmlhttp.send(null);
-}
-
-function showHosts(app){
-    if(document.getElementById('Subsidiary') != null) {
-        var block = document.getElementById('Subsidiary')
-        block.parentNode.removeChild(block);
-    }
-    var block = document.body.appendChild(document.createElement('div'));
-    block.id = 'Subsidiary'
-    block.className = 'popup'
-    var xmlhttp = getXmlHttp();
-    xmlhttp.open('GET', 'http://administrating/Popup/applicationHosts/Application/' + app,true);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var json = xmlhttp.responseText;
-                try{
-                    var response = JSON.parse(json);
-                    var frame = createFrame('Hosts Attachments')
-                    frame.children[0].style.width = '300px'
-                    frame.children[1].style.width = '500px'
-                    frame.children[1].style.margin = '0 auto'
-                    block.appendChild(frame);
-                    var content = document.getElementById('content')
-                    var host = hostContainer(response);
-                    content.appendChild(host);
-                }catch (e){
-                    return false;
-                }
-            }
-        }
-    };
-    xmlhttp.send(null);
-}
-
-function showInstances(app){
-    if(document.getElementById('Subsidiary') != null) {
-        var block = document.getElementById('Subsidiary')
-        block.parentNode.removeChild(block);
-    }
-    var block = document.body.appendChild(document.createElement('div'));
-    block.id = 'Subsidiary'
-    block.className = 'popup'
-    var xmlhttp = getXmlHttp();
-    xmlhttp.open('GET', 'http://administrating/Popup/applicationInstances/Application/' + app,true);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var json = xmlhttp.responseText;
-                try{
-                    var response = JSON.parse(json);
-                    var frame = createFrame('Instances Attachments')
-
-                    block.appendChild(frame);
-                    var content = document.getElementById('content')
-                    var table = createTable(response)
-                    content.appendChild(table);
-                }catch (e){
-                    return false;
-                }
-            }
-        }
-    };
-    xmlhttp.send(null);
-}
-
-function showEvents(schedule){
-
-    var details = document.getElementById('head').children[0].children[1]
-    if(schedule.value == '') {
-        details.style.display = 'none'
-        return
-    }
-    var selected = schedule.options[schedule.selectedIndex]
-    var xmlhttp = getXmlHttp()
-    xmlhttp.open('GET', 'http://administrating/Popup/Show/Events/' + selected.id,true)
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var json = xmlhttp.responseText
-                try{
-                    var response = JSON.parse(json)
-                    details.style.display = 'block'
-                    document.getElementById('schedule_state').checked = selected.title == "Y" ? true : false
-
-                }catch (e){
-                    return false
-                }
-                var content = document.getElementById('content')
-                var table = createTable(response)
-                content.appendChild(table);
-            }
-        }
-    };
-    xmlhttp.send(null)
-}
-
-function showEventsMapping(app){
-    if(document.getElementById('Subsidiary') != null) {
-        var block = document.getElementById('Subsidiary')
-        block.parentNode.removeChild(block)
-    }
-    var block = document.body.appendChild(document.createElement('div'))
-    block.id = 'Subsidiary'
-    block.className = 'popup'
-    var xmlhttp = getXmlHttp()
-    xmlhttp.open('GET', 'http://administrating/Popup/applicationEvents/Application/' + app,true);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var json = xmlhttp.responseText
-                try{
-                    var response = JSON.parse(json)
-                    var frame = createFrame('Events Mapping')
-                    block.appendChild(frame)
-                    var content = document.getElementById('content')
-                    var table = createTable(response)
-                    content.appendChild(table)
-                }catch (e){
-                    return false
-                }
-            }
-        }
-    };
-    xmlhttp.send(null)
-}
-
-function submitForm(block,type)
-{
-    var xmlhttp = getXmlHttp()
-    block = block.querySelectorAll('input,textarea,select')
-    var parameters = {}
-    var before = {}
-    for(var i in block ){
-        var value = block[i].name == 'IS_ENABLED' ? ( block[i].checked === true ? 'Y' : 'N' ) : block[i].value
-        if(type === 'Insert' || type == 'Delete'){
-            parameters[block[i].name] = value
-        } else if (type === 'Update'){
-            if(!block[i].disabled){
-                parameters['AFTER_' + block[i].name] = value
-            }else if (block[i].disabled){
-                before['BEFORE_' + block[i].name] = value
-            }
-        }
-    }
-    for (var key in before){
-        parameters[key] = before[key];
-    }
-    console.log(parameters)
-    var json = JSON.stringify(parameters)
-    var par = "data="+encodeURIComponent(json)
-    xmlhttp.open('POST','http://administrating/Popup/' + encodeURIComponent(type) + '/Target/APPLICATIONS', true);
-    xmlhttp.onreadystatechange=function(){
-        if (xmlhttp.readyState == 4){
-            if(xmlhttp.status == 200){
-                console.log(xmlhttp.responseText)
-            }
-        }
-    };
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
-    xmlhttp.send(par)
-}

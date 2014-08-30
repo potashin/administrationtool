@@ -1,6 +1,37 @@
-<?php foreach($data as $key=>$value): ?>
-    <?php include ('./Templates/block.html') ?>
-<?php endforeach; ?>
-<a class="link styled" href="http://administrating/Settings/Create/">
-    <div class="shadow area">Add application</div>
-</a>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Administration Tool</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="/css/styles.css">
+        <script type="text/javascript" src="/scripts/containers.js"></script>
+        <script type="text/javascript" src="/scripts/starter.js"></script>
+    </head>
+    <script>
+        //setInterval(function(){getHeartBeat()}, 15000);
+    </script>
+    <body onload="correctAllDates()">
+        <div >
+            <div id="error" class="error"></div>
+            <div>
+                <?php include ('./templates/sidebar.html') ?>
+            </div>
+            <div class="back" style="width:70%;top:-10px;border-radius:0 0 15px 15px">
+                <div class="shadow" style="margin:0 auto;position:relative;top:-10px;width:50%;border-radius: 0 0 40px 40px;text-align: center">
+                    <h3 >Administration Tool Application © MOEX 2013-2014</h3>
+                </div>
+                <div >
+	                <?php
+		                foreach ($data as $value)
+		                {
+			                include('./templates/block.html');
+		                }
+	                ?>
+	                <button class="link styled" style="width:100%" onclick="getData('CS','Add new application',null)">
+		                <div class="shadow area">Add application</div>
+	                </button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

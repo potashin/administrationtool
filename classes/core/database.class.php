@@ -11,15 +11,15 @@ class Database
 
     private $session ;
 
-    private $db_type = 'firebird' ;
+    private $db_type = DB_TYPE ;
     
-	private $db_host = '127.0.0.1' ;
+	private $db_host = DB_HOST ;
 
-	private $db_path = '/Library/Frameworks/Firebird.framework/Versions/A/Resources/examples/starter/starterdb.fdb';
+	private $db_path = DB_PATH ;
     
-    private $db_user = 'SYSDBA' ;
+    private $db_user = DB_USER ;
     
-    private $db_password = '123456' ;
+    private $db_password = DB_PASSWORD ;
 
     public function __construct(){
         try {

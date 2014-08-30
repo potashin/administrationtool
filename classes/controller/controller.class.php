@@ -8,12 +8,12 @@ class Controller
 
 	private  $view = null;
 
-	public function __construct ($type) {
+	public function __construct ($type, $meth) {
 		$namespace = '\Classes\Model\Model_' . $type;
 		if (class_exists($namespace)) {
 			$this->model = new $namespace();
 		}
-		if(file_exists('./templates/' . $type . '.html')){
+		if(file_exists('./templates/' . strtolower($type) . '.html')){
 			$this->view = new \Classes\View\View($type);
 		}
 	}

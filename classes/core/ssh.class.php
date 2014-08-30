@@ -6,11 +6,11 @@ class SSH
 {
 	private $ssh_host;
 
-    private $ssh_port = 22;
+    private $ssh_port = SSH_PORT;
 
-    private $ssh_auth_user = 'Notulysses';
+    private $ssh_auth_user = SSH_AUTH_USER;
 
-    private $ssh_auth_pswd = '230693';
+    private $ssh_auth_pswd = SSH_AUTH_PASSWORD;
 
     private $connection;
 

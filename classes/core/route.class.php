@@ -15,7 +15,7 @@ class Route
 
 		$routes = array_values($routes);
 
-		if (isset($_POST['data'])) {
+		if (isset($_POST['data']) && !empty($_POST['data'])) {
 			if (!$data = json_decode($_POST['data'], true)) {
 				throw new \Exception('Error occured while decoding.Error code : ' . json_last_error());
 			}
@@ -25,7 +25,7 @@ class Route
 
 		$model_meth = empty($routes) ? 'get' : array_shift($routes);
 
-		for ($i = 0; $i < count($routes)-1; $i++){
+		for ($i = 0; $i < count($routes) - 1; $i++){
 			$model_args[$routes[$i]] = $routes[++$i];
 		}
 
@@ -33,7 +33,8 @@ class Route
 
 		$model_data = empty($data) ? null : $data;
 
-		$controller = new \Classes\Controller\Controller($model_type);
+
+		$controller = new \Classes\Controller\Controller($model_type, $model_meth);
 		$controller->action($model_meth, $model_args , $model_data);
 	}
 }
