@@ -12,14 +12,15 @@ class Database
     private $session ;
 
     private $db_type = DB_TYPE ;
-    
+
 	private $db_host = DB_HOST ;
 
 	private $db_path = DB_PATH ;
-    
+
     private $db_user = DB_USER ;
-    
+
     private $db_password = DB_PASSWORD ;
+
 
     public function __construct(){
         try {

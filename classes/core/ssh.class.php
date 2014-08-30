@@ -4,7 +4,7 @@ namespace Classes\Core;
 
 class SSH
 {
-	private $ssh_host;
+    private $ssh_host;
 
     private $ssh_port = SSH_PORT;
 
