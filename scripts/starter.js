@@ -135,10 +135,11 @@ function getData(type,name,object){
 
         default : parameters = {}
     }
+
     var xmlhttp = getXmlHttp()
     var affix = 'Popup/Show/Type/';
     xmlhttp.open('POST', 'http://administrating/' + affix  + type,true)
-    if(object != null && type !='SH'){
+    if(Object.keys(parameters).length > 0){
         var json = JSON.stringify(parameters)
         post = "data=" + encodeURIComponent(json)
     }
@@ -194,7 +195,7 @@ function getData(type,name,object){
     xmlhttp.send(post)
 }
 
-function enableInput(parameters,element,type,action){
+/*function enableInput(parameters,element,type,action){
     var p = {}
     var button = element.querySelector('button[class*=blue]')
     for(var i in parameters){
@@ -211,7 +212,7 @@ function enableInput(parameters,element,type,action){
         input[i].disabled = false
     }
 
-}
+}*/
 
 
 function collectInput(element,parameters){
@@ -230,10 +231,12 @@ function collectInput(element,parameters){
 
 function postInput(parameters,element,type,action){
     var viewParam = {}
-    if(parameters.length > 0){
-        for(var i = 0; i < parameters.length ; i++){
-            viewParam[i] = parameters[i]
-        }
+
+    if(Object.keys(parameters).length > 0){
+        Object.keys(parameters).forEach(function(k){
+            viewParam[k] = parameters[k]
+        })
+        viewParam = JSON.stringify(viewParam)
     }else{
         viewParam = null
     }
@@ -256,12 +259,10 @@ function postInput(parameters,element,type,action){
                 var json = xmlhttp.responseText
                 try{
                     if(json == ''){
-                        if(type != 'AS' && type != 'IS' && type != 'AH' && type != 'IH'){
-                            var input = element.querySelectorAll('input,textarea,select')
-                            for(var i = 0; i < input.length ; i++){
-                                input[i].disabled = true
-                            }
-                            getData(type, document.getElementById('header_name').innerHTML, viewParam)
+                        if(type == 'LE'){
+                            getData(type, document.querySelector('#Subsidiary h2').innerHTML, document.querySelector('#Subsidiary_head select'))
+                        }else if(type != 'AS' && type != 'IS' && type != 'AH' && type != 'IH'){
+                            getData(type, document.getElementById('Subsidiary').children[0].id, viewParam)
                         }
 
                     }else {

@@ -1,14 +1,14 @@
 function selectContainer(options,description,selected){
-    var container = document.createElement('select');
+    var container = document.createElement('select')
     for(var i in options){
-        container.innerHTML += '<option ' + ( options[i] == selected ? 'selected' : '') + ' value="' + options[i] + '" label="' + description[i] + '"></option>';
+        container.innerHTML += '<option ' + ( options[i] == selected ? 'selected' : '') + ' value="' + options[i] + '" label="' + description[i] + '"></option>'
     }
-    return container;
+    return container
 }
 
 function createFrame(name,id){
     var container = document.createElement('div')
-    container.id = name;
+    container.id = name
     container.innerHTML =
         '<div class="shadow tab_label" >' +
             '<div  class="closeSub" onClick="showDetails(document.getElementById(\'' + id + '\'))">' +
@@ -16,14 +16,14 @@ function createFrame(name,id){
                 '<div class="two" ></div>' +
             '</div>' +
             '<div id="infoArea" >' +
-                '<h2 id="header_name">' + name + '</h2>' +
+                '<h2 id="' + id + '_header_name">' + name + '</h2>' +
             '</div>' +
         '</div>' +
          '<div  class="shadow tab" style="padding: 20px;margin: 0 10%;">' +
              '<div id="'+ id +'_head"></div>' +
              '<div id="'+ id +'_content"></div>' +
         '</div>'
-   return container;
+   return container
 }
 
 function hostContainer(parameters,data,type){
@@ -110,6 +110,8 @@ function appForm(response,type,parameters){
 
     table.style.textAlign = 'left'
     table.cellPadding = '5px'
+
+    if(type == 'CS') parameters = {'APP_NAME': '',INSTANCEID: ''}
     for(var i = 0;i < response.columns + 1 ;i++){
         if(i == response.columns && Object.keys(response.ignore).length > 0){
             var attachments = {}
@@ -160,7 +162,7 @@ function appForm(response,type,parameters){
 
                 var e = document.createElement('input')
                 e.type = 'button'
-                e.value = 'Edit'
+                e.value = 'Show'
                 e.className = 'classname blue'
                 e.onclick = function(p){
                     return function(){
@@ -205,6 +207,10 @@ function createTable(response,type,parameters){
     }
     var table = document.createElement('table')
     table.id = 'content_table'
+    if(type === 'LE'){
+        response.fields = response.include
+        response.columns = Object.keys(response.fields).length
+    }
     for(var i = 0;i < response.rows+2;i++){
         var row = table.insertRow(i);
             for(var k = 0;k < response.columns + 1;k++){
@@ -212,10 +218,15 @@ function createTable(response,type,parameters){
                 buildHTML(row,cell,i,k,response,type,parameters)
             }
     }
-    if('ACTUAL' in response.ignore){
-        for(var i = 0 ;i < response.columns ;i++){
-            table.rows[response.actual].cells[i].bgColor = 'green'
-        }
+    if(response.content.hasOwnProperty('ACTUAL')){
+        Object.keys(response.content.ACTUAL).forEach(function(k) {
+            if (response.content.ACTUAL[k]) {
+                k++
+                for(var i = 0 ;i < response.columns ;i++){
+                    table.rows[k].cells[i].bgColor = 'green'
+                }
+            }
+        });
     }
     return table;
 }
@@ -247,23 +258,22 @@ function buildHTML(row,cell,i,k,response,type,parameters){
                     postInput(parameters,element, type, 'INSERT');
                     return false;
                 };
-            }(type == 'AS'|| type == 'IS' || type == 'CS'? row.parentNode :row);
+            }(type == 'CS'? row.parentNode :row);
             container.onclick = sv;
             cell.appendChild(container);
-        } else {
-            var option = cell.appendChild(document.createElement("div"));
+        } else if(response.field[k] !== 'INDIVIDUAL_SETTINGS'){
             if(response.options && (response.field[k] in  response.options)){
                 var input = selectContainer(response.options[response.field[k]]['VALUE'],response.options[response.field[k]]['LABEL'])
-            } else if(response.field[k] === 'IS_ENABLED' ){
+            } else if(response.field[k] === 'IS_ENABLED'){
                 var input = document.createElement("input");
                 input.type = 'checkbox';
             }else if(response.field[k] === 'CONFIG'){
                 var input = document.createElement("textarea");
-            } else if (response.field[k] !== 'INDIVIDUAL SETTINGS'){
+            } else {
                 var input = document.createElement("input")
             }
             input.name = response.field[k]
-            option.appendChild(input);
+            cell.appendChild(input);
         }
     }else if(i !== response.rows+1){
         if(k != response.columns){
@@ -277,6 +287,7 @@ function buildHTML(row,cell,i,k,response,type,parameters){
                             response.content[response.field[k]][i-1])
                     }else if(response.field[k] === 'CONFIG'){
                         var input = document.createElement("textarea");
+                        input.value = response.content[response.field[k]][i-1]
                     }else{
                         var input = document.createElement("input");
                         if(response.field[k] == 'IS_ENABLED'){
@@ -294,7 +305,7 @@ function buildHTML(row,cell,i,k,response,type,parameters){
                     }
                     if(type === 'IS')input.placeholder = 'Inherited from ' + response.content.APP_NAME[0]
 
-                    input.disabled = (response.disabled != null && response.disabled.hasOwnProperty(response.field[k]) ? true :  false)
+                    input.disabled = (response.disabled.hasOwnProperty(response.field[k]) ? true :  false)
                     input.name = response.field[k]
                     cell.appendChild(input)
                     break
@@ -325,10 +336,10 @@ function buildHTML(row,cell,i,k,response,type,parameters){
             if(response.action.UPDATE){
                 var container = document.createElement("button");
                 container.className = "classname vis blue";
-                container.innerHTML = "Edit";
+                container.innerHTML = "Update";
                 var edt = function(element){
                     return function(){
-                        enableInput(parameters,element, type,'UPDATE');
+                        postInput(parameters,element, type,'UPDATE');
                         return false;
                     };
                 }(type == 'AS'|| type == 'IS' ? row.parentNode :row)

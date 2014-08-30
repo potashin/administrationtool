@@ -9,13 +9,18 @@
 			parent::__construct();
 		}
 
-		public function show($type, $parameter = array())
+		public function show($type, $parameter = array ())
 		{
 			$dataObject = new \Classes\Core\Data();
 			switch ($type['TYPE'])
 			{
 				case 'CS' :
-					$query = "SELECT APP_NAME,DESCRIPTION,PATH,CONFIG,IS_ENABLED,SCHEDULE
+					$query = "SELECT APP_NAME
+									, DESCRIPTION
+									, IS_ENABLED
+									, PATH
+									, SCHEDULE
+									, CONFIG
 			                  FROM GET_APPLICATION_SETTINGS
 			                  WHERE 1 <> 1";
 
@@ -62,10 +67,10 @@
 					break;
 				case 'AE' :
 					$query = "SELECT EVENTNAME
-									   , COMMAND
-									   , PARAMETERS
-								  FROM GET_APPLICATION_EVENTS
-								  WHERE APP_NAME = :APP_NAME";
+								   , COMMAND
+								   , PARAMETERS
+							  FROM GET_APPLICATION_EVENTS
+							  WHERE APP_NAME = :APP_NAME";
 
 					$dataObject->options = array ('EVENTNAME' => array ());
 					$dataObject->action['DELETE'] = false;
@@ -109,16 +114,13 @@
 					$dataObject->options = array ('SCHEDULE' => array ());
 					break;
 				case 'LE' :
-					$query = "SELECT gte.EVENTTIME
-								   , gte.EVENTNAME
-								   , gte.WORKDAY
-								   , (CASE WHEN gtae.SCHEDULEID IS NOT NULL THEN 'ACTUAL' END) AS ACTUAL
-							  FROM GET_TODAY_EVENTS gte
-							  LEFT JOIN GET_TODAY_ACTUAL_EVENTS gtae ON gte.SCHEDULEID = gtae.SCHEDULEID
-																	AND gte.EVENTTIME = gtae.EVENTTIME
-																    AND gte.EVENTTYPEID = gtae.EVENTTYPEID
-							  WHERE gte.SCHEDULEID = :SCHEDULE
-							  ORDER BY gte.EVENTTIME";
+					$query = "SELECT EVENTTIME
+								   , EVENTNAME
+								   , WORKDAY
+								   , ACTUAL
+							  FROM GET_EVENTS
+							  WHERE SCHEDULEID = :SCHEDULE
+							  ORDER BY EVENTTIME";
 
 					$dataObject->ignore[] = 'ACTUAL';
 					$dataObject->options = array ('EVENTNAME' => array (), 'WORKDAY' => array ());
@@ -159,7 +161,7 @@
 					$parameter['SCHEDULEID'] = null;
 					$parameter['CONFIG'] = null;
 					$parameter['PATH'] = null;
-
+				case 'CS' :
 				case 'AS' :
 				case 'IS' :
 					$procedure = "ATTACH_APP_OR_INS";

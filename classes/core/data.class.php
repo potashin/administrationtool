@@ -9,8 +9,6 @@ class Data {
 
 	public $rows = 0;
 
-	//public $actual = false;
-
 	public $action = array(
 						'INSERT' => true ,
 						'UPDATE' => true ,
