@@ -94,8 +94,8 @@ function correctDate(date){
 function closeMsg(message,color)
 {
     var ee = document.getElementById("error")
-    ee.innerHTML = message
     ee.color = color
+    ee.innerHTML = message
     ee.style.display = "block"
 
     setTimeout(
@@ -112,6 +112,7 @@ function createPopup(id){
     }
     var block = document.body.appendChild(document.createElement('div'));
     block.id = id
+    block.className = 'popup'
     block.style.display = 'table'
     return block
 }
@@ -159,12 +160,12 @@ function getData(type,name,object){
                         content.appendChild(table)
                     }else if(type != 'LE'){
                         location.hash = affix + name.replace(/ /g, '')
-                        var block = createPopup('Subsidiary')
-                        var frame = createFrame(name,'Subsidiary')
+                        var block = createPopup(type)
+                        var frame = createFrame(name,type)
                         block.appendChild(frame)
                         var table
-                        var content = document.getElementById('Subsidiary_content')
-                        var head = document.getElementById('Subsidiary_head')
+                        var content = document.getElementById(type + '_content')
+                        var head = document.getElementById(type + '_head')
                         if(type == 'SH') {
                             table = scheduleContainer(response,object.value)
                             head.appendChild(table)
@@ -178,10 +179,10 @@ function getData(type,name,object){
                             content.appendChild(table)
                         }
                     }else {
-                        var head = document.getElementById('Subsidiary_head')
+                        var head = document.getElementById('SH_head')
                         head.children[0].children[1].style.display = 'block'
                         document.getElementById('schedule_state').checked = object.options[object.selectedIndex].title == "Y" ? true : false
-                        var content = document.getElementById('Subsidiary_content')
+                        var content = document.getElementById('SH_content')
                         var table = createTable(response,type,parameters)
                         content.appendChild(table)
                     }
@@ -210,6 +211,11 @@ function collectInput(element,parameters){
 }
 
 function postInput(parameters,element,type,action){
+    if(action === 'DELETE'){
+        if (!confirm("Это действие удалит эту запись и все с ней связанные. Продолжить ?")) {
+          return
+        }
+    }
     var viewParam = {}
 
     if(Object.keys(parameters).length > 0){

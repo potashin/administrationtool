@@ -15,9 +15,7 @@ function createFrame(name,id){
                 '<div class="one" ></div>' +
                 '<div class="two" ></div>' +
             '</div>' +
-            '<div id="infoArea" >' +
-                '<h2 id="' + id + '_header_name">' + name + '</h2>' +
-            '</div>' +
+            '<h2 id="' + id + '_header_name">' + name + '</h2>' +
         '</div>' +
          '<div  class="shadow tab" style="padding: 20px;margin: 0 10%;">' +
              '<div id="'+ id +'_head"></div>' +
@@ -34,7 +32,7 @@ function hostContainer(parameters,data,type){
         var color = data.content.IS_ENABLED[i] == 'Y' ? 'black' : 'red'
         table_content +=
             '<tr style="color:'+ color + '">' +
-                '<td ><input disabled style="color: ' + color+ '" name="HOSTID" value="' + data.content.HOSTID[i] + '"/></td>' +
+                '<td ><input type="text" disabled style="color: ' + color+ '" name="HOSTID" value="' + data.content.HOSTID[i] + '"/></td>' +
                 '<td >' + data.content.DESCRIPTION[i] + '</td>' +
                 '<td style="width:25px"><input name="IS_ENABLED" type="checkbox" ' + (data.content.IS_ENABLED[i] == 'Y' ? ' ' : 'disabled ') + (data.content.ATTACHED[i] ==  'Y' ? 'checked' : '') + '></td>' +
                 '</tr>'
@@ -68,7 +66,7 @@ function scheduleContainer(data,selected){
                 '</div>' +
                 '<div style="display:table-cell;width:200px;">' +
                     '<button class="blue" style="float: left;" onClick="getData(\'SA\',\'Add Schedule\',null)">Add</button>' +
-                    '<button class="blue" style="float: left;" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#Subsidiary_head select\'))">Edit</button>' +
+                    '<button class="blue" style="float: left;" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#SH_head select\'))">Edit</button>' +
                 '</div>' +
             '</div>' +
             '<div  style="display:none;padding: 5px 0;">' +
@@ -106,7 +104,7 @@ function appForm(response,type,parameters){
         table.parentNode.removeChild(table)
     }
     var table = document.createElement('table')
-    table.id = 'popup_table'
+    table.id = type + '_table'
     response.fields = response.include
     response.columns = Object.keys(response.include).length
 
@@ -219,12 +217,12 @@ function appForm(response,type,parameters){
 
 function createTable(response,type,parameters){
 
-    if(document.getElementById('content_table') != null) {
-        var table = document.getElementById('content_table')
+    if(document.getElementById(type + '_table') != null) {
+        var table = document.getElementById(type + '_table')
         table.parentNode.removeChild(table)
     }
     var table = document.createElement('table')
-    table.id = 'content_table'
+    table.id = type + '_table'
     if(type === 'LE'){
         response.fields = response.include
         response.columns = Object.keys(response.fields).length

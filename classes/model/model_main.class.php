@@ -35,7 +35,6 @@
 					{
 						$v['HOSTS'] = explode(',',$v['HOSTS']);
 						$v['HOSTS_DESC'] = explode(',',$v['HOSTS_DESC']);
-
 						$temp['CONTENT'][] = $v;
 					}
 
