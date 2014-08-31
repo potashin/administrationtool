@@ -248,12 +248,6 @@ function createTable(response,type,parameters){
 }
 
 function buildHTML(row,cell,i,k,response,type,parameters){
-    if(k == 0 && i > 0){
-        var hidden = document.createElement("input");
-        hidden.type = 'hidden'
-        hidden.name = 'TYPE'
-        cell.appendChild(hidden)
-    }
     if(i == 0){
         cell.style.wordBreak = "keep-all";
         if(k == response.columns){
@@ -377,6 +371,12 @@ function buildHTML(row,cell,i,k,response,type,parameters){
                 div.appendChild(container);
             }
         }
+    }
+    if(k == response.columns && i > 0){
+        var hidden = document.createElement("input");
+        hidden.type = 'hidden'
+        hidden.name = 'TYPE'
+        cell.appendChild(hidden)
     }
 }
 

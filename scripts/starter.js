@@ -216,6 +216,7 @@ function postInput(parameters,element,type,action){
           return
         }
     }
+
     var viewParam = {}
 
     if(Object.keys(parameters).length > 0){

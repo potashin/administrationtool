@@ -134,14 +134,18 @@
 								  FROM HOSTS";
 					break;
 				case 'SC' :
-					$query = "SELECT *
+					$query = "SELECT ID AS SCHEDULE
+								   , DESCRIPTION
+								   , IS_ENABLED
 								  FROM SCHEDULES
 						      WHERE ID = :SCHEDULE";
 
 					$dataObject->action['INSERT'] = false;
 					break;
 				case 'SA' :
-					$query = "SELECT *
+					$query = "SELECT ID AS SCHEDULE
+								   , DESCRIPTION
+								   , IS_ENABLED
 								  FROM SCHEDULES
 							  WHERE 1 <> 1";
 
@@ -169,9 +173,17 @@
 					break;
 				case 'AA' :
 				case 'AI' :
-					$parameter['SCHEDULEID'] = null;
-					$parameter['CONFIG'] = null;
-					$parameter['PATH'] = null;
+					$end = array_splice($parameter, -1,1);
+					$parameter = array_merge(
+						$parameter,
+						array(
+							'SCHEDULEID' => null,
+							'CONFIG' => null,
+							'PATH' => null,
+						),
+						$end
+					);
+
 				case 'CS' :
 				case 'AS' :
 				case 'IS' :
@@ -194,7 +206,6 @@
 				default :
 					throw new \Exception('Undefined perform request');
 			}
-
 			array_walk(
 				$parameter, function (&$item)
 				{
