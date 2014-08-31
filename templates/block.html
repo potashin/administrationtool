@@ -1,115 +1,76 @@
+<div class="shadow area"
 <?php
 	if (intval($value['SUMMARY']['TOTAL']) > 0)
 	{
-		if ($value['SUMMARY']['PENDING'] == 0)
-		{
 ?>
-	<div class="shadow area" style="padding: 0;background:mediumseagreen">
+     style="background: <?php echo (intval($value['SUMMARY']['PENDING']) == 0 ? 'mediumseagreen' : 'indianred'); ?>"
 <?php
-		}
-		else
-		{
+	}
 ?>
-	<div class="shadow area" style="padding: 0;background:indianred;">
+>
 <?php
-			}
-		}
-		elseif (intval($value['SUMMARY']['TOTAL']) == 0)
-		{
+	$object = array();
+	$object['APP_NAME'] = $value['SUMMARY']['APP_NAME'];
 ?>
-		<div class="shadow area" style="padding: 0;height:37px">
+	<button class="label" onclick="getData('AS','Application Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
+		<h4><?php echo $value['SUMMARY']['APP_NAME'] ?></h4>
+	</button>
 <?php
-		}
+	if (intval($value['SUMMARY']['TOTAL']) > 0 and isset($value['CONTENT']))
+	{
 ?>
+	<div>
+		<button class="details"
+		        onclick="showDetails(this.parentNode.querySelector('table'))">
+			<span >Instances — Total: <?php echo $value['SUMMARY']['TOTAL'] ?></span>
+			<span style="color:
 			<?php
-				$object = array();
-				$object['APP_NAME'] = $value['SUMMARY']['APP_NAME'];
+				if ($value['SUMMARY']['LAUNCHED'] > 0) echo 'darkgreen';
+				else echo 'black';
 			?>
-		<div class="label" style="position: absolute;z-index: 2;margin: 5px">
-			<!--<a class="link classic"
-			   href="http://administrating/Settings/Show/Application/<?php echo $value['SUMMARY']['APP_NAME'] ?>"><?php echo $value['SUMMARY']['APP_NAME'] ?></a>
-			-->
-			<button class="link classic" onclick="getData('AS','Application Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
-				<?php echo $value['SUMMARY']['APP_NAME'] ?>
-			</button>
-		</div>
+				">Launched: <?php echo $value['SUMMARY']['LAUNCHED'] ?>
+			</span>
+			<span style="color:
+			<?php
+				if ($value['SUMMARY']['PENDING'] > 0) echo 'darkred';
+				else echo 'black';
+			?>
+				">Pending: <?php echo $value['SUMMARY']['PENDING'] ?>
+			</span>
+		</button>
+		<table border=0 cellpadding="5">
+			<colgroup>
+				<col>
+				<col>
+				<col>
+				<col>
+				<col>
+				<col>
+				<col>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>State</th>
+					<th>Instance</th>
+					<th>Description</th>
+					<th>HeartBeat</th>
+					<th>Scheduled at</th>
+					<th>Host</th>
+					<th>Pending action</th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+				foreach ($value['CONTENT'] as $v)
+				{
+					include('./templates/row.html');
+					$counter++;
+				}
+			?>
+			</tbody>
+		</table>
+	</div>
 <?php
-		if (intval($value['SUMMARY']['TOTAL']) > 0)
-		{
+	}
 ?>
-		<div>
-			<button class="details"
-			        onclick="showDetails(this.parentNode.parentNode.children[2])">
-				<span style="padding: 10px">Instances — Total: <?php echo $value['SUMMARY']['TOTAL'] ?></span>
-<?php
-					if ($value['SUMMARY']['LAUNCHED'] > 0)
-					{
-						?>
-						<span
-							style="padding: 10px;color:darkgreen">Launched: <?php echo $value['SUMMARY']['LAUNCHED'] ?></span>
-<?php
-					}
-					else
-					{
-?>
-						<span
-							style="padding:10px;color:black">Launched: <?php echo $value['SUMMARY']['LAUNCHED'] ?></span>
-<?php
-					}
-					if ($value['SUMMARY']['PENDING'] > 0)
-					{
-?>
-						<span
-							style="padding: 10px;color: darkred">Pending: <?php echo $value['SUMMARY']['PENDING'] ?></span>
-<?php
-					}
-					else
-					{
-?>
-						<span
-							style="padding: 10px;color:black">Pending: <?php echo $value['SUMMARY']['PENDING'] ?></span>
-<?php
-					}
-?>
-			</button>
-		</div>
-<?php
-			}
-			if (intval($value['SUMMARY']['TOTAL']) > 0 and isset($value['CONTENT']))
-			{
-?>
-			<div style="display: none">
-				<table border=0 cellpadding="5">
-					<col style="width:5%;">
-					<col style="width:10%;">
-					<col style="width:15%;">
-					<col style="width:20%;">
-					<col style="width:15%;">
-					<col style="width:20%">
-					<col style="width:15%">
-					<thead>
-					<tr>
-						<th>State</th>
-						<th>Instance</th>
-						<th>Description</th>
-						<th>HeartBeat</th>
-						<th>Scheduled at</th>
-						<th>Host</th>
-						<th>Pending action</th>
-					</tr>
-					</thead>
-					<tbody>
-<?php
-						foreach ($value['CONTENT'] as $v)
-						{
-							include('./templates/row.html');
-							$counter++;
-						}
-?>
-					</tbody>
-				</table>
-			</div>
-<?php
-			}
-?>
-		</div>
+</div>

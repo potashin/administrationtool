@@ -112,7 +112,6 @@ function createPopup(id){
     }
     var block = document.body.appendChild(document.createElement('div'));
     block.id = id
-    block.className = 'popup'
     block.style.display = 'table'
     return block
 }
@@ -196,26 +195,6 @@ function getData(type,name,object){
     xmlhttp.send(post)
 }
 
-/*function enableInput(parameters,element,type,action){
-    var p = {}
-    var button = element.querySelector('button[class*=blue]')
-    for(var i in parameters){
-        p[i] = parameters[i]
-    }
-    button.innerHTML = "Update"
-
-    var edt = function(){
-        return postInput(p,element,type,action)
-    }
-    button.onclick = edt
-    var input = element.querySelectorAll('input[name],textarea,select')
-    for(var i = 0; i < input.length;i++){
-        input[i].disabled = false
-    }
-
-}*/
-
-
 function collectInput(element,parameters){
     var p = {}
     for(var i in parameters){
@@ -282,8 +261,28 @@ function postInput(parameters,element,type,action){
 }
 
 function showDetails(element){
-    element.style.display = element.style.display == 'none' ? 'block' : 'none';
+    element.style.display = (element.style.display == 'none' || element.style.display == '') ? 'block' : 'none';
 }
+
+/*function enableInput(parameters,element,type,action){
+ var p = {}
+ var button = element.querySelector('button[class*=blue]')
+ for(var i in parameters){
+ p[i] = parameters[i]
+ }
+ button.innerHTML = "Update"
+
+ var edt = function(){
+ return postInput(p,element,type,action)
+ }
+ button.onclick = edt
+ var input = element.querySelectorAll('input[name],textarea,select')
+ for(var i = 0; i < input.length;i++){
+ input[i].disabled = false
+ }
+
+ }
+
 
 /*function saveChanges(type,name){
     var table = document.getElementById("popup").getElementsByTagName("table")[0];

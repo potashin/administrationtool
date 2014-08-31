@@ -66,8 +66,9 @@ function scheduleContainer(data,selected){
                 '</div>' +
                 '<div style="display:table-cell;width: 200px">' +
                 '</div>' +
-                '<div style="display:table-cell;width:100px;">' +
-                    '<button class="classname blue" style="float: left;" onClick="getData(\'SA\',\'Add Schedule\',null)">Add</button>' +
+                '<div style="display:table-cell;width:200px;">' +
+                    '<button class="blue" style="float: left;" onClick="getData(\'SA\',\'Add Schedule\',null)">Add</button>' +
+                    '<button class="blue" style="float: left;" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#Subsidiary_head select\'))">Edit</button>' +
                 '</div>' +
             '</div>' +
             '<div  style="display:none;padding: 5px 0;">' +
@@ -78,8 +79,8 @@ function scheduleContainer(data,selected){
                     '<div style="display:table-cell;width: 200px;">' +
                         '<input disabled id="schedule_state" style="float: left;" type="checkbox" class="checkbox">' +
                     '</div>' +
-                    '<div style="display:table-cell;width:100px;">' +
-                        '<button class="classname blue" style="float: left;" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#Subsidiary_head select\'))">Edit</button>' +
+                    '<div style="display:table-cell;width:200px;">' +
+                        '<button class="blue" style="float: left;"  onClick="getData(\'EC\',\'Calendar\', null)">Exclusions</button>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -119,10 +120,14 @@ function appForm(response,type,parameters){
             if(!parameters.hasOwnProperty('INSTANCEID')){
                 attachments.Instances = {
                     'ENABLED' : response.content.ENABLED_INSTANCES,
-                        'DISABLED' : response.content.DISABLED_INSTANCES,
-                        'ONCLICK' : {
+                    'DISABLED' : response.content.DISABLED_INSTANCES,
+
+                    'ONCLICK' : {
+                        0 : {
                             'TYPE' : 'AI',
-                            'NAME' : 'Instance Attachment'
+                            'NAME' : 'Instance Attachment',
+                            'VALUE' : 'Edit'
+                        }
                     }
                 }
             }
@@ -130,8 +135,17 @@ function appForm(response,type,parameters){
                 'ENABLED' : response.content.ENABLED_HOSTS,
                 'DISABLED' : response.content.DISABLED_HOSTS,
                 'ONCLICK' : {
-                    'TYPE' : type.charAt(0) + 'H',
-                    'NAME' : 'Hosts Attachment'
+                    0 : {
+                        'TYPE' : type.charAt(0) + 'H',
+                        'NAME' : 'Hosts Attachment',
+                        'VALUE' : 'Edit'
+                    },
+                    1 : {
+                        'TYPE' : 'LH',
+                        'NAME' : 'Hosts',
+                        'VALUE' : 'Show'
+                    }
+
                 }
             }
 
@@ -139,8 +153,11 @@ function appForm(response,type,parameters){
                 'ENABLED' : response.content.ENABLED_EVENTS,
                 'DISABLED' : response.content.DISABLED_EVENTS,
                 'ONCLICK' : {
-                    'TYPE' : type.charAt(0) + 'E',
-                    'NAME' : 'Event Mapping'
+                    0 : {
+                        'TYPE' : type.charAt(0) + 'E',
+                        'NAME' : 'Event Mapping',
+                        'VALUE' : 'Edit'
+                    }
                 }
             }
 
@@ -161,16 +178,20 @@ function appForm(response,type,parameters){
                 }
                 var cell = row.insertCell(2)
 
-                var e = document.createElement('input')
-                e.type = 'button'
-                e.value = 'Show'
-                e.className = 'classname blue'
-                e.onclick = function(p){
-                    return function(){
-                        getData(p['TYPE'],p['NAME'],JSON.stringify(parameters))
-                    }
-                }(attachments[t][y])
-                cell.appendChild(e)
+                for(var u in attachments[t]['ONCLICK']){
+                    var e = document.createElement('input')
+                    e.type = 'button'
+                    e.value = attachments[t]['ONCLICK'][u]['VALUE']
+                    e.className = 'blue'
+                    e.onclick = function(p){
+                        return function(){
+                            getData(p['TYPE'],p['NAME'],JSON.stringify(parameters))
+                        }
+                    }(attachments[t]['ONCLICK'][u])
+                    cell.appendChild(e)
+                }
+
+
 
             }
         }
@@ -181,20 +202,16 @@ function appForm(response,type,parameters){
         }
 
     }
-    if(type != 'CS'){
-        var button = document.createElement('input')
-        var schedule = table.querySelector('select[name="SCHEDULE"]')
+    var button = document.createElement('input')
+    var schedule = table.querySelector('select[name="SCHEDULE"]')
 
-        button.type = 'button'
-        button.value = 'Show'
-        button.className = 'classname blue'
-        button.onclick = function(){
-            return getData('SH', 'Schedules & Events', schedule)
-        }
-        schedule.parentNode.parentNode.insertCell(-1).appendChild(button)
+    button.type = 'button'
+    button.value = 'Show'
+    button.className = 'blue'
+    button.onclick = function(){
+        return getData('SH', 'Schedules & Events', schedule)
     }
-
-
+    schedule.parentNode.parentNode.insertCell(-1).appendChild(button)
 
     return table;
 }
@@ -252,7 +269,7 @@ function buildHTML(row,cell,i,k,response,type,parameters){
 
         if(k == response.columns){
             var container = document.createElement("button");
-            container.className = "classname vis blue";
+            container.className = "vis blue";
             container.innerHTML = "Add";
             var sv = function(element){
                 return function(){
@@ -272,6 +289,7 @@ function buildHTML(row,cell,i,k,response,type,parameters){
                 var input = document.createElement("textarea");
             } else {
                 var input = document.createElement("input")
+                input.type = 'text';
             }
             input.name = response.field[k]
             cell.appendChild(input);
@@ -317,7 +335,6 @@ function buildHTML(row,cell,i,k,response,type,parameters){
                     if(response.field[k] == 'INDIVIDUAL_SETTINGS'){
                         var input = document.createElement("input");
                         input.type = 'checkbox';
-                        input.className = 'checkbox';
                         input.disabled = true;
                         if(response.content[response.field[k]][i-1] == 'Y'){
                             input.checked = true;
@@ -336,7 +353,7 @@ function buildHTML(row,cell,i,k,response,type,parameters){
             var div = cell.appendChild(document.createElement("div"));
             if(response.action.UPDATE){
                 var container = document.createElement("button");
-                container.className = "classname vis blue";
+                container.className = "vis blue";
                 container.innerHTML = "Update";
                 var edt = function(element){
                     return function(){
@@ -350,7 +367,7 @@ function buildHTML(row,cell,i,k,response,type,parameters){
             }
             if(response.action.DELETE){
                 var container = document.createElement("button");
-                container.className = "classname vis red";
+                container.className = "vis red";
                 container.innerHTML = "Delete";
                 var dlt = function(element){
                     return function(){

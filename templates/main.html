@@ -11,26 +11,21 @@
         //setInterval(function(){getHeartBeat()}, 15000);
     </script>
     <body onload="correctAllDates()">
-        <div >
-            <div id="error" class="error"></div>
-            <div>
-                <?php include ('./templates/sidebar.html') ?>
+        <div id="error" ></div>
+        <div id="content" >
+            <div class="shadow">
+                <h3 >Administration Tool Application © MOEX 2013-2014</h3>
             </div>
-            <div class="back" style="width:70%;top:-10px;border-radius:0 0 15px 15px">
-                <div class="shadow" style="margin:0 auto;position:relative;top:-10px;width:50%;border-radius: 0 0 40px 40px;text-align: center">
-                    <h3 >Administration Tool Application © MOEX 2013-2014</h3>
-                </div>
-                <div >
-	                <?php
-		                foreach ($data as $value)
-		                {
-			                include('./templates/block.html');
-		                }
-	                ?>
-	                <button class="link styled" style="width:100%" onclick="getData('CS','Add new application',null)">
-		                <div class="shadow area">Add application</div>
-	                </button>
-                </div>
+            <?php
+                foreach ($data as $value)
+                {
+	                include('./templates/block.html');
+                }
+            ?>
+            <div class="shadow area">
+	            <button class="details" onclick="getData('CS',this.innerHTML,null)">
+		            Add application
+	            </button>
             </div>
         </div>
     </body>

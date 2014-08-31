@@ -1,19 +1,15 @@
 <tr id="<?php echo $counter ?>">
 	<td>
-		<div style='margin: 0 auto;position:relative;width:30px;'>
-			<div class='circle'  style="background-color:
+		<div class='circle' style="background-color:
 			<?php
 				if ($v['IS_RUNNING'] == 'Y' and intval($v['HB_DELTA']) < 15) echo 'green';
 				elseif ($v['IS_RUNNING'] == 'Y' and intval($v['HB_DELTA']) > 15) echo 'orange';
 				elseif ($v['IS_RUNNING'] == 'N') echo 'red';
-			?>
-				"></div>
+			?>">
 		</div>
 	</td>
-	<td><?php $object['INSTANCEID'] = $v['INSTANCEID'];?><!--<a class="link classic"
-	       href="http://administrating/Settings/Show/Application/<?php echo $value['SUMMARY']['APP_NAME'] ?>/Instance/<?php echo $v['INSTANCEID'] ?>"><?php echo $v['INSTANCEID'] ?></a>
-		-->
-		<button class="link classic" onclick="getData('IS','Instance Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
+	<td><?php $object['INSTANCEID'] = $v['INSTANCEID'];?>
+		<button onclick="getData('IS','Instance Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
 			<?php echo $v['INSTANCEID'] ?>
 		</button>
 	</td>
@@ -23,8 +19,8 @@
 	<?php if ($v['IS_RUNNING'] == "N" and ($v['EVENTNAME'] == "Start" or $v['EVENTNAME'] == "Resume"))
 	{
 		?>
-		<td style="text-align: left;">
-			<select style="background-color:inherit;">
+		<td >
+			<select >
 			<?php
 				foreach ($v['HOSTS'] as $key => $option)
 				{
@@ -36,7 +32,7 @@
 			</select>
 		</td>
 		<td>
-			<button class='classname blue'
+			<button class='blue'
 			        onClick="doSSH('<?php echo $counter ?>','<?php echo $value['SUMMARY']['APP_NAME'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
 		</td>
 	<?php
@@ -45,12 +41,12 @@
 	{
 		?>
 		<td>
-			<select disabled style="background-color:inherit;">
+			<select disabled >
 				<option value="<?php echo $v['RUNNING'] ?>" label="<?php echo $v['RUNNING_DESC'] ?>"></option>
 			</select>
 		</td>
 		<td>
-			<button class='classname blue'
+			<button class='blue'
 			        onClick="doSSH('<?php echo $counter ?>','<?php echo $value['SUMMARY']['APP_NAME'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
 		</td>
 	<?php
@@ -62,7 +58,7 @@
 	{
 		?>
 		<td>
-			<select disabled style="background-color:inherit;">
+			<select disabled >
 				<option value="<?php echo $v['RUNNING'] ?>"><?php echo $v['RUNNING_DESC'] ?></option>
 			</select>
 		</td>
