@@ -170,7 +170,7 @@ function appForm(response,type,parameters){
                     }
                 }
                 if(cell.innerHTML == '' && type == 'IS'){
-                    cell.innerHTML = 'Inherited from ' + response.content.APP_NAME[0]
+                    cell.innerHTML = 'Inherited from ' + response.content.APP_DESCRIPTION[0]
                 }
                 var cell = row.insertCell(2)
 
@@ -200,6 +200,14 @@ function appForm(response,type,parameters){
     }
     var button = document.createElement('input')
     var schedule = table.querySelector('select[name="SCHEDULE"]')
+    if(type == 'IS' && response.content.SCHEDULE[0] == ''){
+        for(var i in schedule.options){
+            if(schedule.options[i].value == response.content.INHERITED_SCHEDULE[0]){
+                schedule.options[i].selected = true
+                schedule.options[i].label += ' (Inherited from ' + response.content.APP_DESCRIPTION[0] + ')'
+            }
+        }
+    }
 
     button.type = 'button'
     button.value = 'Show'
@@ -312,7 +320,7 @@ function buildHTML(row,cell,i,k,response,type,parameters){
                             input.value = response.content[response.field[k]][i-1]
                         }
                     }
-                    if(type === 'IS')input.placeholder = 'Inherited from ' + response.content.APP_NAME[0]
+                    if(type === 'IS')input.placeholder = 'Inherited from ' + response.content.APP_DESCRIPTION[0]
 
                     input.disabled = (response.disabled.hasOwnProperty(response.field[k]) ? true :  false)
                     input.name = response.field[k]
@@ -334,7 +342,7 @@ function buildHTML(row,cell,i,k,response,type,parameters){
                         cell.appendChild(input)
                     }else{
                         cell.innerHTML = response.content[response.field[k]][i-1]
-                        if(type === 'IS')input.placeholder = 'Inherited from ' + response.content.APP_NAME[0]
+                        if(type === 'IS')input.placeholder = 'Inherited from ' + response.content.APP_DESCRIPTION[0]
                     }
 
                 }

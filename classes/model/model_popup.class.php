@@ -51,6 +51,7 @@
 				                    AND INSTANCEID = :INSTANCEID";
 
 					$dataObject->ignore = array (
+						'APP_DESCRIPTION',
 						'INHERITED_SCHEDULE',
 						'ENABLED_HOSTS',
 						'DISABLED_HOSTS',

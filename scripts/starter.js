@@ -272,7 +272,6 @@ function postInput(parameters,element,type,action){
                         } else if (type == 'AS' || type == 'IS'){
                             location.reload()
                         }
-
                     }else {
                         throw 'Error'
                     }
