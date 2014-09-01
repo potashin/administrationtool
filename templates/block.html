@@ -22,20 +22,20 @@
 	<div>
 		<button class="details area"
 		        onclick="showDetails(this.parentNode.querySelector('table'))">
-			<span >Instances — Total: <?php echo $value['SUMMARY']['TOTAL'] ?></span>
+			<span ><?php echo $LANG['INS_TOTAL'] ;?><?php echo $value['SUMMARY']['TOTAL'] ?></span>
 			<span style="color:
 			<?php
 				if ($value['SUMMARY']['LAUNCHED'] > 0) echo 'darkgreen';
 				else echo 'black';
 			?>
-				">Launched: <?php echo $value['SUMMARY']['LAUNCHED'] ?>
+				"><?php echo $LANG['INS_LAUNCHED'] ;?><?php echo $value['SUMMARY']['LAUNCHED'] ?>
 			</span>
 			<span style="color:
 			<?php
 				if ($value['SUMMARY']['PENDING'] > 0) echo 'darkred';
 				else echo 'black';
 			?>
-				">Pending: <?php echo $value['SUMMARY']['PENDING'] ?>
+				"><?php echo $LANG['INS_PENDING'] ;?><?php echo $value['SUMMARY']['PENDING'] ?>
 			</span>
 		</button>
 		<table border=0 cellpadding="5">

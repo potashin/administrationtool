@@ -1,4 +1,7 @@
 <?php
+	/* Language settings */
+
+	define ('LANG', 'en');
 
 	/* Database settings : */
 
