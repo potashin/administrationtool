@@ -41,11 +41,10 @@ class Data {
 	public function getDataObject($query, $parameter){
 		$this->query = $query;
 		$this->parameter = $parameter;
-		$this->disabled = $parameter;
-
 		$this->setContent($query, $parameter);
 		$this->setFields();
 		$this->include = array_values(array_diff($this->field, $this->ignore));
+		$this->setDisabled();
 
 		if($this->options){
 			$this->setOptions();
@@ -108,16 +107,14 @@ class Data {
 		}
 	}
 
-	/*private function setActual(){
-		$query = "SELECT gte.EVENTTIME
-					   , gte.EVENTNAME
-					   , gte.WORKDAY
-				  FROM GET_TODAY_EVENTS gte
-				  LEFT JOIN GET_TODAY_ACTUAL_EVENTS gtae ON gte.SCHEDULEID = gtae.SCHEDULEID
-														AND gte.EVENTTIME = gtae.EVENTTIME
-													    AND gte.EVENTTYPEID = gtae.EVENTTYPEID
-				  WHERE gte.SCHEDULEID = :SCHEDULE
-				  	AND ";
-	}*/
+	private function setDisabled(){
+		$query = "SELECT *
+				  FROM GET_PK_KEYS
+				  WHERE KEYS IN('" . implode("', '", $this->include) . "')";
+		$result = $this->connection->query($query)->execute()->fetchAll();
+		if(!empty($result)){
+			$this->disabled = array_flip(array_shift($result));
+		}
+	}
 
 } 

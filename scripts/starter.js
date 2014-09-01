@@ -21,30 +21,28 @@ function getXmlHttp(){
 
 function doSSH(id,app)
 {
-    var row = document.getElementById(id);
-    var xmlhttp = getXmlHttp();
+    var row = document.getElementById(id)
+    var xmlhttp = getXmlHttp()
     var parameters = {
         'HOST' : row.querySelector('select').value,
         'APP_NAME' : app,
-        'INSTANCE' : row.querySelector('a').innerHTML,
-        'COMMAND' : row.querySelector('button').innerHTML
-    };
-    var json = JSON.stringify(parameters);
-    var par = "data="+encodeURIComponent(json);
-    var ee = document.getElementById("error");
-    ee.style.color = "white";
-    ee.innerHTML = "Loading...";
-    ee.style.display = "block";
-    xmlhttp.open('POST','http://administrating/Remote/Execute/', true);
+        'INSTANCE' : row.querySelector('button').innerHTML,
+        'COMMAND' : row.querySelector('button[class="blue"]').innerHTML
+    }
+    var json = JSON.stringify(parameters)
+    var par = "data="+encodeURIComponent(json)
+    var ee = new notification()
+    ee.set("Loading . . . ",'white')
+    xmlhttp.open('POST','http://administrating/Remote/Execute/', true)
     xmlhttp.onreadystatechange=function(){
       if (xmlhttp.readyState == 4){
          if(xmlhttp.status == 200){
-             closeMsg(xmlhttp.responseText,'black');
+             ee.set(xmlhttp.responseText,'white')
          }
         }
-      };
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xmlhttp.send(par);
+      }
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+    xmlhttp.send(par)
 }
 
 function correctAllDates(){
@@ -91,29 +89,47 @@ function correctDate(date){
     return newDate;
 }
 
-function closeMsg(message,color)
+function notification()
 {
-    var ee = document.getElementById("error")
-    ee.color = color
-    ee.innerHTML = message
-    ee.style.display = "block"
+    this.class = 'notification'
+    this.timeOut
+    this.element = null
+    this.remove = function (){
+        this.timeOut = setTimeout(
+            function(){
+                document.body.removeChild(this.element)
+            },5000
+        )
+    }
+    this.show = function(){
+        this.element = document.body.appendChild(document.createElement('div'))
+        this.element.className = this.class
+    }
 
-    setTimeout(
-        function(){
-            document.getElementById('error').style.display='none';
-        },5000
-    )
+}
+
+notification.prototype.set = function (message, color){
+    if(this.element == null){
+        this.show()
+    }
+    this.element.innerHTML = message
+    this.element.style.color = color
+    clearTimeout(this.timeOut)
+    this.remove()
+}
+
+function removePopup(id){
+    if(document.getElementById(id) != null) {
+        var block = document.getElementById(id)
+        block.parentNode.removeChild(block)
+    }
 }
 
 function createPopup(id){
-    if(document.getElementById(id) != null) {
-        var block = document.getElementById(id)
-        block.parentNode.removeChild(block);
-    }
-    var block = document.body.appendChild(document.createElement('div'));
+    removePopup()
+    var block = document.body.appendChild(document.createElement('div'))
     block.id = id
     block.className = 'popup'
-    block.style.display = 'table'
     return block
 }
 
@@ -150,44 +166,46 @@ function getData(type,name,object){
                 var json = xmlhttp.responseText;
                 try{
                     var response = JSON.parse(json);
-                    if(type == 'AS' || type == 'IS' || type == 'CS'){
-                        var block = createPopup('popup')
-                        var frame = createFrame(name,'popup')
-                        block.appendChild(frame)
-                        var content = document.getElementById('popup_content')
-                        var table = appForm(response,type,parameters)
-                        location.hash = affix + name.replace(/ /g, '')
+                    if(type == 'LE'){
+                        var head = document.querySelector('#SH #head')
+                        head.children[0].children[1].style.display = 'block'
+                        document.getElementById('schedule_state').checked = object.options[object.selectedIndex].title == 'Y'
+                        var content = document.querySelector('#SH #content')
+                        var table = createTable(response,type,parameters)
                         content.appendChild(table)
-                    }else if(type != 'LE'){
+                    }else{
                         location.hash = affix + name.replace(/ /g, '')
                         var block = createPopup(type)
-                        var frame = createFrame(name,type)
-                        block.appendChild(frame)
+                        block.appendChild(createFrame(name,type))
+                        var content = document.querySelector('#' + type + ' #content')
+                        var head = document.querySelector('#' + type + ' #head')
                         var table
-                        var content = document.getElementById(type + '_content')
-                        var head = document.getElementById(type + '_head')
-                        if(type == 'SH') {
+                        if (type == 'SH') {
                             table = scheduleContainer(response,object.value)
                             head.appendChild(table)
                             getData('LE',null,head.querySelector('select'))
 
-                        } else if (type == 'AH' || type == 'IH') {
-                            table = hostContainer(parameters,response,type)
-                            content.appendChild(table)
-                        }else {
-                            table = createTable(response,type,parameters)
+                        }else{
+                            switch(type){
+                                case 'AS':
+                                case 'IS':
+                                case 'CS':  table = appForm(response,type,parameters)
+                                            break
+                                case 'AH':
+                                case 'IH':  table = hostContainer(parameters,response,type)
+                                            break
+                                default :   table = createTable(response,type,parameters)
+                            }
                             content.appendChild(table)
                         }
-                    }else {
-                        var head = document.getElementById('SH_head')
-                        head.children[0].children[1].style.display = 'block'
-                        document.getElementById('schedule_state').checked = object.options[object.selectedIndex].title == "Y" ? true : false
-                        var content = document.getElementById('SH_content')
-                        var table = createTable(response,type,parameters)
-                        content.appendChild(table)
+                        var width = Object.keys(response.include).length
+                        block.querySelector('.tab').style.width = width * (width > 5 ? 10 : 15) + '%'
+                        block.querySelector('.tab_label').style.width = name.length + 10 + '%'
                     }
+
                 }catch(e){
-                    closeMsg(json,'red');
+                    var ee = new notification()
+                    ee.set(json,'red')
                 }
             }
         }
@@ -203,7 +221,7 @@ function collectInput(element,parameters){
     }
     var input = element.querySelectorAll('input[name],textarea,select')
     for(var i = 0; i < input.length ; i++){
-        var value = input[i].name == 'IS_ENABLED' ? ( input[i].checked === true ? 'Y' : 'N' ) : input[i].value
+        var value = input[i].type == 'checkbox' ? ( input[i].checked === true ? 'Y' : 'N' ) : input[i].value
         p[input[i].name] = value
     }
     return p
@@ -236,6 +254,7 @@ function postInput(parameters,element,type,action){
     }
 
     var parameters = collectInput(element,parameters)
+
     var json = JSON.stringify(parameters);
     var par = "data=" + encodeURIComponent(json);
     var xmlhttp = getXmlHttp();
@@ -247,9 +266,9 @@ function postInput(parameters,element,type,action){
                 try{
                     if(json == ''){
                         if(type == 'LE'){
-                            getData(type, document.querySelector('#Subsidiary h2').innerHTML, document.querySelector('#Subsidiary_head select'))
-                        }else if(type != 'AS' && type != 'IS' && type != 'AH' && type != 'IH'){
-                            getData(type, document.getElementById('Subsidiary').children[0].id, viewParam)
+                            getData(type, null, document.querySelector('#SH head select'))
+                        } else if(type != 'AS' && type != 'IS' && type != 'AH' && type != 'IH'){
+                            getData(type, document.getElementById('#' + type + ' h2').innerHTML, viewParam)
                         } else if (type == 'AS' || type == 'IS'){
                             location.reload()
                         }
@@ -258,7 +277,8 @@ function postInput(parameters,element,type,action){
                         throw 'Error'
                     }
                 }catch(e){
-                    closeMsg(json,'red');
+                    var ee = new notification()
+                    ee.set(json,'red')
                 }
             }
         }
@@ -270,217 +290,3 @@ function postInput(parameters,element,type,action){
 function showDetails(element){
     element.style.display = (element.style.display == 'none' || element.style.display == '') ? 'block' : 'none';
 }
-
-/*function enableInput(parameters,element,type,action){
- var p = {}
- var button = element.querySelector('button[class*=blue]')
- for(var i in parameters){
- p[i] = parameters[i]
- }
- button.innerHTML = "Update"
-
- var edt = function(){
- return postInput(p,element,type,action)
- }
- button.onclick = edt
- var input = element.querySelectorAll('input[name],textarea,select')
- for(var i = 0; i < input.length;i++){
- input[i].disabled = false
- }
-
- }
-
-
-/*function saveChanges(type,name){
-    var table = document.getElementById("popup").getElementsByTagName("table")[0];
-    var info = {};
-    var columns = table.rows[0].cells.length-1 ;
-    var inputRow = table.rows[table.rows.length-1];
-    for(var i = 0;i<columns;i++){
-        if(table.rows[0].cells[i].innerHTML == 'IS_ENABLED') {
-            var state = inputRow.cells[i].children[0].children[0].checked;
-            info[table.rows[0].cells[i].innerHTML] = state == true ? 'Y' : 'N';
-        } else{
-            info[table.rows[0].cells[i].innerHTML] = inputRow.cells[i].children[0].children[0].value;
-        }
-    }
-    var json = JSON.stringify(info);
-    var par = "data="+encodeURIComponent(json);
-    var url = 'http://administrating/Popup/Insert/Target/' + type.toUpperCase();
-    var xmlhttp = getXmlHttp();
-    xmlhttp.open('POST',url,true);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var error = xmlhttp.responseText;
-                if(error==""){
-                    getData(type,name);
-                }else{
-                    var ee = document.getElementById("error");
-                    ee.innerHTML = error;
-                    ee.style.display = "block";
-                    ee.style.color = "red";
-                    closeMsg();
-                }
-            }
-        }
-    };
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xmlhttp.send(par);
-
-}
-
-/*function deleteRow(number,type,name){
-    var table = document.getElementById("popup").getElementsByTagName("table")[0];
-    var info = {};
-    for(var i = 0;i<table.rows[number].cells.length-1;i++){
-        if(table.rows[0].cells[i].innerHTML == 'IS_ENABLED') {
-            var state = table.rows[number].cells[i].children[0].children[0].checked;
-            info[table.rows[0].cells[i].innerHTML] = state == true ? 'Y' : 'N';
-        } else{
-            info[table.rows[0].cells[i].innerHTML] = table.rows[number].cells[i].innerHTML;
-        }
-    }
-    var json = JSON.stringify(info);
-    var par = "data="+encodeURIComponent(json);
-    var xmlhttp = getXmlHttp();
-    var url = 'http://administrating/Popup/Delete/Target/' + type.toUpperCase();
-    xmlhttp.open('POST', url ,true);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var error = xmlhttp.responseText;
-                if(error==""){
-                    getData(type,name);
-                }else{
-                    var ee = document.getElementById("error");
-                    ee.innerHTML = error;
-                    ee.style.display = "block";
-                    ee.style.color = "red";
-                    closeMsg();
-                }
-            }
-        }
-    };
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xmlhttp.send(par);
-
-}
-function editPushed(number,type,name){
-    var table = document.querySelector('table#content_table');
-    var info = {};
-    var input = table.rows[number].querySelectorAll('input, select')
-    for(var i = 0; i < input.length ; i++){
-        if(input[i].type == 'checkbox') {
-            info['BEFORE_' + table.rows[0].cells[i].innerHTML] = (input[i].checked === true ? 'Y' : 'N')
-        } else {
-            info['BEFORE_' + table.rows[0].cells[i].innerHTML] = input[i].value
-        }
-        input[i].disabled = false
-    }
-    var container = document.createElement("button");
-    container.className = "classname vis blue";
-    container.innerHTML = "Save";
-    var edt = function(){
-        edit(number,type,info,name);
-        return false;
-    };
-    container.onclick = edt
-    table.rows[number].cells[input.length].querySelector('div').style.display = 'none'
-    table.rows[number].cells[input.length].appendChild(container);
-}
-
-
-
-function edit(number,type,before,name){
-    var table = document.querySelector('table#content_table');
-    var after = {};
-    var input = table.rows[number].querySelectorAll('input, select, textarea')
-    for(var i = 0; i < input.length ; i++){
-        if(input[i].type == 'checkbox') {
-            after['AFTER_' + table.rows[0].cells[i].innerHTML] = (input[i].checked === true ? 'Y' : 'N')
-        } else {
-            after['AFTER_' + table.rows[0].cells[i].innerHTML] = input[i].value
-        }
-    }
-    for (var key in before){
-        after[key] = before[key];
-    }
-    var json = JSON.stringify(after);
-    var par = "data=" + encodeURIComponent(json);
-    var xmlhttp = getXmlHttp();
-    var url = 'http://administrating/';
-    xmlhttp.open('POST', url ,true);
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
-                var json = xmlhttp.responseText;
-                try{
-                    var response = JSON.parse(json);
-                    table.rows[number].cells[input.length].removeChild(table.rows[number].cells[input.length].querySelector('button'))
-                    table.rows[number].cells[input.length].querySelector('div').style.display = 'block'
-                    /*for(var i = 0;i<table.rows[number].cells.length;i++){
-                        var cell = table.rows[number].cells[i];
-                        if(i==table.rows[number].cells.length-1){
-                            var child = cell.children[0];
-                            cell.removeChild(child);
-                            var div = cell.appendChild(document.createElement("div"));
-                            var container = document.createElement("button");
-                            container.className = "classname vis blue";
-                            container.innerHTML = "Edit";
-                            var edt = function(){
-                                editPushed(number,type,name);
-                                return false;
-                            };
-                            container.onclick = edt;
-                            div.appendChild(container);
-                            var container = document.createElement("button");
-                            container.className = "classname vis red";
-                            container.innerHTML = "Delete";
-                            var dlt = function(){
-                                deleteRow(number,type,name);
-                                return false;
-                            };
-                            container.onclick = dlt;
-                            div.appendChild(container);
-                        }else{
-                            var cur_field = table.rows[0].cells[i].innerHTML;
-
-                            for(var q in response.field){
-                                if(response.field[q] === cur_field){
-                                    var child = cell.children[0];
-                                    cell.removeChild(child);
-                                    if(response.field[q] == 'IS_ENABLED'){
-                                        var option = cell.appendChild(document.createElement("div"));
-                                        var check = document.createElement("input");
-                                        check.type = 'checkbox';
-                                        check.className = 'checkbox';
-                                        check.disabled = true;
-                                        if(response[response.field[q]][0] == 'Y'){
-                                            check.checked = true;
-                                        } else if (response[response.field[q]][0] == 'N') {
-                                            check.checked = false;
-                                        }
-                                        option.appendChild(check);
-                                    } else {
-                                        cell.innerHTML = response[response.field[q]][0];
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }catch (e){
-                    var ee = document.getElementById("error");
-                    ee.style.display = "block";
-                    ee.style.color = "red";
-                    ee.innerHTML = json;
-                    closeMsg();
-                    return;
-                }
-            }
-        }
-    };
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xmlhttp.send(par);
-}*/

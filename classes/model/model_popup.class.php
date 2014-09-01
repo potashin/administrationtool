@@ -64,6 +64,11 @@
 					$query = "SELECT *
 								  FROM GET_APPLICATIONS_HOSTS
 								  WHERE APP_NAME = :APP_NAME";
+					$dataObject->ignore = array (
+						'APP_NAME',
+						'IS_ENABLED',
+						'DESCRIPTION',
+					);
 					break;
 				case 'AE' :
 					$query = "SELECT EVENTNAME
@@ -92,6 +97,13 @@
 							  FROM GET_INSTANCES_HOSTS
 							  WHERE APP_NAME = :APP_NAME
 							    AND ID = :INSTANCEID";
+
+					$dataObject->ignore = array (
+						'APP_NAME',
+						'ID',
+						'IS_ENABLED',
+						'DESCRIPTION',
+					);
 					break;
 				case 'IE' :
 					$query = "SELECT EVENTNAME
@@ -155,7 +167,6 @@
 				default :
 					return 'Undefined show request';
 			}
-
 			return $dataObject->getDataObject($query, $parameter);
 		}
 

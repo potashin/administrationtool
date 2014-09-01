@@ -118,7 +118,8 @@ h2{
     border-radius: 15px;
     border:1px solid black;
     background-color:white;
-    margin: 0;
+    padding: 20px;
+    margin: 0 auto;
 }
 .tab_label{
     -webkit-border-radius: 15px 15px 0 0;
@@ -132,7 +133,6 @@ h2{
     bottom:-1px;
     margin: 0 auto;
     z-index: 4;
-    width:40%;
 }
 .area{
     -webkit-border-radius: 15px;
@@ -187,11 +187,7 @@ tr:hover .vis{
     visibility: visible;
 }
 
-#popup .vis{
-    visibility: visible;
-}
-
-#popup, .popup{
+.popup{
     z-index:3;
     width: 100%;
     height: 100%;
@@ -203,57 +199,52 @@ tr:hover .vis{
     overflow: auto;
 }
 
-#popup > div{
-    width:80%;
-    margin:0 auto;
+table#popup .vis{
+    visibility: visible;
+}
+table#popup {
+    text-align: left;
 }
 
-
-#popup table tr td span:nth-child(1):not(:empty) ~ span:nth-child(2):not(:empty):before{
+table#popup  tr td span:nth-child(1):not(:empty) ~ span:nth-child(2):not(:empty):before{
     content: ', ';
     color:black;
 }
 
-#popup table tr td:nth-child(1) {
+table#popup tr td:nth-child(1) {
     width:15%;
 }
 
-#popup table tr td:nth-child(2) {
-    width:70%;
+table#popup tr td:nth-child(2) {
+    width:65%;
 }
 
-#popup table tr td:nth-child(3) {
-    width:10%;
+table#popup tr td:nth-child(3) {
+    width:15%;
 }
 
-#popup > div input[type="text"]{
+table#popup input[type="text"]{
     min-width: 400px;
-    border: 1px solid black;
 }
-#popup > div input[type="button"]{
-    width:auto;
+table#popup input[type="button"]{
     border: 1px solid black;
-    margin:5px 0;
-    float:right;
-    clear:both;
-    width:100px;
 }
 
-#popup > div textarea{
+table#popup textarea{
     max-width: 400px;
     height:50px;
 }
 
-#popup td > span {
+table#popup td > span {
     word-break: break-all;
 }
 
 
-#error{
+.notification{
     padding: 15px;
     font:14px serif;
     font-weight: bold;
-    background-color:rgba(70, 70, 70,0.7);
+    background-color:rgba(70, 70, 70,0.5);
     position: fixed;
     width: 30%;
     z-index:50;
@@ -265,10 +256,9 @@ tr:hover .vis{
     -khtml-border-bottom-right-radius:15px;
     text-align: left;
     word-wrap: break-word;
-    display: none;
 }
 
-#content {
+#main {
     position: relative;
     width:80%;
     top:-10px;
@@ -283,22 +273,22 @@ tr:hover .vis{
     -khtml-border-radius: 0 0 15px 15px;
 }
 
-#content > .shadow{
-    min-height: 38px;
+#main > .shadow{
+    min-height: 39px;
 }
 
-#content > .shadow:first-child {
+#main > .shadow:first-child {
     margin:0 auto;
     top:-10px;
     width:50%;
     border-radius: 0 0 40px 40px;
 }
 
-#content .area {
+#main .area {
     padding: 0;
 }
 
-#content .shadow .details {
+#main .shadow .details {
     color:black;
     padding: 10px;
     font:15px serif;
@@ -309,17 +299,17 @@ tr:hover .vis{
     text-align: center;
 }
 
-#content .shadow div .details {
+#main .shadow div .details {
     text-align: right;
 }
 
-#content .details:hover{
+#main .details:hover{
     cursor: pointer;
 }
-#content .details span {
+#main .details span {
     padding: 0 5px;
 }
-#content .label {
+#main .label {
     position: absolute;
     z-index: 2;
     height:39px;
@@ -331,7 +321,7 @@ tr:hover .vis{
     border-radius: 15px 0 0 15px ;
 }
 
-#content .circle {
+#main .circle {
     margin: 0 auto;
     width: 12px;
     height: 12px;
@@ -340,15 +330,15 @@ tr:hover .vis{
     border-radius: 50px;
     border:1px solid black
 }
-#content select {
+#main select {
     float:left;
 }
 
-#content table { display: none; }
-#content table colgroup col:nth-child(1){ width:5%}
-#content table colgroup col:nth-child(2){ width:10%}
-#content table colgroup col:nth-child(3){ width:15%}
-#content table colgroup col:nth-child(4){ width:20%}
-#content table colgroup col:nth-child(5){ width:10%}
-#content table colgroup col:nth-child(6){ width:15%}
-#content table colgroup col:nth-child(7){ width:10%}
+#main table { display: none; }
+#main table colgroup col:nth-child(1){ width:5%}
+#main table colgroup col:nth-child(2){ width:10%}
+#main table colgroup col:nth-child(3){ width:15%}
+#main table colgroup col:nth-child(4){ width:20%}
+#main table colgroup col:nth-child(5){ width:10%}
+#main table colgroup col:nth-child(6){ width:15%}
+#main table colgroup col:nth-child(7){ width:10%}

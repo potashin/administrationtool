@@ -9,9 +9,7 @@
 		</div>
 	</td>
 	<td><?php $object['INSTANCEID'] = $v['INSTANCEID'];?>
-		<button onclick="getData('IS','Instance Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
-			<?php echo $v['INSTANCEID'] ?>
-		</button>
+		<button onclick="getData('IS','Instance Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')"><?php echo $v['INSTANCEID'] ?></button>
 	</td>
 	<td><?php echo $v['DESCRIPTION'] ?></td>
 	<td data-stamp="LAST_HEARTBEAT" ><?php echo $v['LAST_HEARTBEAT'] == '' ? 'Нет данных' : $v['LAST_HEARTBEAT'] ?></td>

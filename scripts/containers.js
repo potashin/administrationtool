@@ -1,61 +1,75 @@
 function selectContainer(options,description,selected){
     var container = document.createElement('select')
     for(var i in options){
-        container.innerHTML += '<option ' + ( options[i] == selected ? 'selected' : '') + ' value="' + options[i] + '" label="' + description[i] + '"></option>'
+        var option = document.createElement('option')
+        option.value = options[i]
+        option.label = description[i]
+        option.selected = options[i] === selected ? true : false
+        container.add(option)
     }
     return container
 }
 
 function createFrame(name,id){
     var container = document.createElement('div')
-    container.id = name
     container.innerHTML =
         '<div class="shadow tab_label" >' +
-            '<div  class="closeSub" onClick="showDetails(document.getElementById(\'' + id + '\'))">' +
+            '<div  class="closeSub" onClick="removePopup(\'' + id +'\')">' +
                 '<div class="one" ></div>' +
                 '<div class="two" ></div>' +
             '</div>' +
-            '<h2 id="' + id + '_header_name">' + name + '</h2>' +
+            '<h2 >' + name + '</h2>' +
         '</div>' +
-         '<div  class="shadow tab" style="padding: 20px;margin: 0 10%;">' +
-             '<div id="'+ id +'_head"></div>' +
-             '<div id="'+ id +'_content"></div>' +
+         '<div class="shadow tab">' +
+             '<div id="head"></div>' +
+             '<div id="content"></div>' +
         '</div>'
    return container
 }
 
 function hostContainer(parameters,data,type){
-    var container = document.createElement('div')
-    container.style.margin = '0 auto'
-    var table_content = '';
-    for(var i = 0; i< data.rows;i++){
-        var color = data.content.IS_ENABLED[i] == 'Y' ? 'black' : 'red'
-        table_content +=
-            '<tr style="color:'+ color + '">' +
-                '<td ><input type="text" disabled style="color: ' + color+ '" name="HOSTID" value="' + data.content.HOSTID[i] + '"/></td>' +
-                '<td >' + data.content.DESCRIPTION[i] + '</td>' +
-                '<td style="width:25px"><input name="IS_ENABLED" type="checkbox" ' + (data.content.IS_ENABLED[i] == 'Y' ? ' ' : 'disabled ') + (data.content.ATTACHED[i] ==  'Y' ? 'checked' : '') + '></td>' +
-                '</tr>'
-    }
-    container.innerHTML =
-        '<table style="text-align: left;width:400px;margin:0 auto" cellpadding="5px">' +
-            table_content +
-            '</table>';
-    var onChangeAttach = container.querySelectorAll('tr')
-    for(var i = 0; i < onChangeAttach.length; i++){
-        var att = function(element){
-            return function(){
-                postInput(parameters, element,type)
-                return false
+    var container = document.createElement('table')
+    for(var i = 0; i< data.rows; i++){
+        var row = container.insertRow(i)
+        var color = (data.content.IS_ENABLED[i] == 'Y' ? (data.content.ATTACHED[i] == 'Y' ? 'black' : 'grey' ) : 'red')
+        for(var k in data.include){
+            var cell = row.insertCell(k)
+            if(data.include[k] == 'ATTACHED'){
+                var input  = document.createElement('input')
+                input.type = "checkbox"
+                input.disabled = data.content.IS_ENABLED[i] != 'Y'
+                input.checked = data.content[data.include[k]][i] == 'Y'
+                input.onclick = function(element){
+                    return function(){
+                        return postInput(parameters, element,type)
+                    }
+                }(row)
+            } else if(data.include[k] == 'HOSTID') {
+                var input  = document.createElement('select')
+                var option = document.createElement('option')
+                option.value = data.content[data.include[k]][i]
+                option.label = data.content[data.include[k]][i]
+                input.disabled = true
+                input.style.color = color
+                input.add(option)
             }
-        }(onChangeAttach[i])
-        onChangeAttach[i].onchange = att;
+            input.name = data.include[k]
+            cell.appendChild(input)
+        }
     }
-    return container;
+    return container
 }
 
 function scheduleContainer(data,selected){
     var select = selectContainer(data.content.ID,data.content.DESCRIPTION,selected);
+    select.onchange = function(){return getData('LE', null, select)}
+    for(var i in select.options){
+        for(var k = 0 ;k < data.rows ; k++){
+            if(data.content.ID[k] == select.options[i].value){
+                select.options[i].title = data.content.IS_ENABLED[k]
+            }
+        }
+    }
     var container = document.createElement('div');
     container.innerHTML =
             '<div style="margin:0 auto;display: table;">' +
@@ -66,7 +80,7 @@ function scheduleContainer(data,selected){
                 '</div>' +
                 '<div style="display:table-cell;width:200px;">' +
                     '<button class="blue" style="float: left;" onClick="getData(\'SA\',\'Add Schedule\',null)">Add</button>' +
-                    '<button class="blue" style="float: left;" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#SH_head select\'))">Edit</button>' +
+                    '<button class="blue" style="float: left;" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#SH #head select\'))">Edit</button>' +
                 '</div>' +
             '</div>' +
             '<div  style="display:none;padding: 5px 0;">' +
@@ -82,33 +96,17 @@ function scheduleContainer(data,selected){
                     '</div>' +
                 '</div>' +
             '</div>';
-
-    select.onchange = function(){getData('LE', null, select)}
     select.style.float = 'left'
-    for(var i in select.options){
-        for(var k in data.content.DESCRIPTION){
-            if(data.content.ID[k] == select.options[i].value){
-                select.options[i].title = data.content.IS_ENABLED[k]
-            }
-        }
-
-
-    }
     container.children[0].children[1].appendChild(select);
     return container;
 }
 
 function appForm(response,type,parameters){
-    if(document.getElementById('popup_table') != null) {
-        var table = document.getElementById('popup_table')
-        table.parentNode.removeChild(table)
-    }
     var table = document.createElement('table')
-    table.id = type + '_table'
+    table.id = 'popup'
     response.fields = response.include
     response.columns = Object.keys(response.include).length
 
-    table.style.textAlign = 'left'
     table.cellPadding = '5px'
 
     if(type == 'CS') parameters = {'APP_NAME': '',INSTANCEID: ''}
@@ -140,7 +138,7 @@ function appForm(response,type,parameters){
                     },
                     1 : {
                         'TYPE' : 'LH',
-                        'NAME' : 'Hosts',
+                        'NAME' : 'Host Settings',
                         'VALUE' : 'Show'
                     }
 
