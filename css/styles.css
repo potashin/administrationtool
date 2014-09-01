@@ -1,6 +1,7 @@
 input[type="checkbox"]{
     width:20px;
     height:15px;
+    margin-left: 10px;
 }
 
 input[type="text"] {
@@ -15,6 +16,7 @@ input[type="text"] {
     outline:none;
     padding:0 3px;
     font-size: 15px;
+    color:black;
     font-family: Times;
 
 }input[type="text"]:focus, textarea:focus{
@@ -68,19 +70,15 @@ table {
 }
 
 textarea{
-    position: relative;
+    font-size: 15px;
     resize: none;
-    font-size: 16px;
     font-family: Times;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     -khtml-border-radius: 5px;
     border-radius: 5px;
-    border: 0;
     padding: 1%;
-    margin: 0;
     width: 98%;
-    height:100px;
     border:1px solid #333;
 }
 
@@ -342,3 +340,14 @@ table#popup td > span {
 #main table colgroup col:nth-child(5){ width:10%}
 #main table colgroup col:nth-child(6){ width:15%}
 #main table colgroup col:nth-child(7){ width:10%}
+
+
+#head table{
+    width:450px;
+    table-layout: fixed;
+    margin:0 auto;
+}
+
+#head table tr td:nth-child(1){ width:100px ; text-align: right;}
+#head table tr td:nth-child(2){ width:200px ; text-align: left;}
+#head table tr td:nth-child(3){ width:150px}

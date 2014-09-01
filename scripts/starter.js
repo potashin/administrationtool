@@ -93,7 +93,7 @@ function notification()
 {
     this.class = 'notification'
     this.timeOut
-    this.element = null
+    this.element = document.body.appendChild(document.createElement('div'))
     this.remove = function (){
         this.timeOut = setTimeout(
             function(){
@@ -101,17 +101,11 @@ function notification()
             },5000
         )
     }
-    this.show = function(){
-        this.element = document.body.appendChild(document.createElement('div'))
-        this.element.className = this.class
-    }
 
 }
 
 notification.prototype.set = function (message, color){
-    if(this.element == null){
-        this.show()
-    }
+    this.element.className = this.class
     this.element.innerHTML = message
     this.element.style.color = color
     clearTimeout(this.timeOut)
@@ -167,11 +161,18 @@ function getData(type,name,object){
                 try{
                     var response = JSON.parse(json);
                     if(type == 'LE'){
-                        var head = document.querySelector('#SH #head')
-                        head.children[0].children[1].style.display = 'block'
+                        document.querySelector('#SH #head table tr:nth-child(2)').style.visibility = 'visible'
                         document.getElementById('schedule_state').checked = object.options[object.selectedIndex].title == 'Y'
                         var content = document.querySelector('#SH #content')
                         var table = createTable(response,type,parameters)
+                        Object.keys(response.content.ACTUAL).forEach(function(k) {
+                            if (response.content.ACTUAL[k]) {
+                                k++
+                                for(var i = 0 ;i < response.columns ; i++){
+                                    table.rows[k].cells[i].bgColor = 'green'
+                                }
+                            }
+                        })
                         content.appendChild(table)
                     }else{
                         location.hash = affix + name.replace(/ /g, '')
@@ -199,7 +200,7 @@ function getData(type,name,object){
                             content.appendChild(table)
                         }
                         var width = Object.keys(response.include).length
-                        block.querySelector('.tab').style.width = width * (width > 5 ? 10 : 15) + '%'
+                        block.querySelector('.tab').style.width = width * (width > 5 ? 10 : 18) + '%'
                         block.querySelector('.tab_label').style.width = name.length + 10 + '%'
                     }
 
@@ -248,12 +249,12 @@ function postInput(parameters,element,type,action){
     if(parameters.hasOwnProperty('APP_NAME') && !parameters.hasOwnProperty('INSTANCEID')){
         parameters.INSTANCEID = null
     }
-    var input
-    if(input = element.querySelector('input[name=TYPE]')){
-        input.value = action
-    }
 
     var parameters = collectInput(element,parameters)
+
+    if(action != null){
+        parameters.TYPE = action
+    }
 
     var json = JSON.stringify(parameters);
     var par = "data=" + encodeURIComponent(json);

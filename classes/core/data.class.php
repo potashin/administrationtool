@@ -17,7 +17,7 @@ class Data {
 
 	public $field = array();
 
-	public $options = false;
+	public $options = array();
 
 	public $content = array();
 
@@ -45,6 +45,9 @@ class Data {
 		$this->setFields();
 		$this->include = array_values(array_diff($this->field, $this->ignore));
 		$this->setDisabled();
+		$this->include = array_flip($this->include);
+		$this->ignore = array_flip($this->ignore);
+
 
 		if($this->options){
 			$this->setOptions();

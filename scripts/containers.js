@@ -33,22 +33,22 @@ function hostContainer(parameters,data,type){
         var row = container.insertRow(i)
         var color = (data.content.IS_ENABLED[i] == 'Y' ? (data.content.ATTACHED[i] == 'Y' ? 'black' : 'grey' ) : 'red')
         for(var k in data.include){
-            var cell = row.insertCell(k)
-            if(data.include[k] == 'ATTACHED'){
+            var cell = row.insertCell(-1)
+            if(k == 'ATTACHED'){
                 var input  = document.createElement('input')
                 input.type = "checkbox"
                 input.disabled = data.content.IS_ENABLED[i] != 'Y'
-                input.checked = data.content[data.include[k]][i] == 'Y'
+                input.checked = data.content[k][i] == 'Y'
                 input.onclick = function(element){
                     return function(){
                         return postInput(parameters, element,type)
                     }
                 }(row)
-            } else if(data.include[k] == 'HOSTID') {
+            } else if(k == 'HOSTID') {
                 var input  = document.createElement('select')
                 var option = document.createElement('option')
-                option.value = data.content[data.include[k]][i]
-                option.label = data.content[data.include[k]][i]
+                option.value = data.content[k][i]
+                option.label = data.content[k][i]
                 input.disabled = true
                 input.style.color = color
                 input.add(option)
@@ -70,34 +70,24 @@ function scheduleContainer(data,selected){
             }
         }
     }
-    var container = document.createElement('div');
+
+    var container = document.createElement('table');
     container.innerHTML =
-            '<div style="margin:0 auto;display: table;">' +
-                '<div style="display:table-cell;width:100px;">' +
-                    '<h4 style="float: left;padding:3px 0">Schedule :</h4>' +
-                '</div>' +
-                '<div style="display:table-cell;width: 200px">' +
-                '</div>' +
-                '<div style="display:table-cell;width:200px;">' +
-                    '<button class="blue" style="float: left;" onClick="getData(\'SA\',\'Add Schedule\',null)">Add</button>' +
-                    '<button class="blue" style="float: left;" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#SH #head select\'))">Edit</button>' +
-                '</div>' +
-            '</div>' +
-            '<div  style="display:none;padding: 5px 0;">' +
-                '<div style="margin:0 auto;display: table">' +
-                    '<div style="display:table-cell;width:100px;">' +
-                        '<h4 style="float: left;padding:3px 0">Enabled :</h4>' +
-                    '</div>' +
-                    '<div style="display:table-cell;width: 200px;">' +
-                        '<input disabled id="schedule_state" style="float: left;" type="checkbox" class="checkbox">' +
-                    '</div>' +
-                    '<div style="display:table-cell;width:200px;">' +
-                        '<button class="blue" style="float: left;"  onClick="getData(\'EC\',\'Calendar\', null)">Exclusions</button>' +
-                    '</div>' +
-                '</div>' +
-            '</div>';
-    select.style.float = 'left'
-    container.children[0].children[1].appendChild(select);
+            '<tr >' +
+                '<td ><h4 >Schedule :</h4></td>' +
+                '<td ></td>' +
+                '<td >' +
+                    '<button class="blue" onClick="getData(\'SA\',\'Add Schedule\',null)">Add</button>' +
+                    '<button class="blue" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#SH #head select\'))">Edit</button>' +
+                '</td>' +
+            '</tr>' +
+            '<tr style="visibility: hidden">' +
+                '<td ><h4 >Enabled :</h4></td>' +
+                '<td ><input disabled id="schedule_state" type="checkbox" class="checkbox"></td>' +
+                '<td ><button class="blue"  onClick="getData(\'EC\',\'Calendar\', null)">Exclusions</button>' +
+                '</td>' +
+            '</tr>'
+    container.rows[0].cells[1].appendChild(select)
     return container;
 }
 
@@ -110,6 +100,7 @@ function appForm(response,type,parameters){
     table.cellPadding = '5px'
 
     if(type == 'CS') parameters = {'APP_NAME': '',INSTANCEID: ''}
+
     for(var i = 0;i < response.columns + 1 ;i++){
         if(i == response.columns && Object.keys(response.ignore).length > 0){
             var attachments = {}
@@ -229,6 +220,7 @@ function createTable(response,type,parameters){
     }
     var table = document.createElement('table')
     table.id = type + '_table'
+
     if(type === 'LE'){
         response.fields = response.include
         response.columns = Object.keys(response.fields).length
@@ -240,150 +232,67 @@ function createTable(response,type,parameters){
                 buildHTML(row,cell,i,k,response,type,parameters)
             }
     }
-    if(response.content.hasOwnProperty('ACTUAL')){
-        Object.keys(response.content.ACTUAL).forEach(function(k) {
-            if (response.content.ACTUAL[k]) {
-                k++
-                for(var i = 0 ;i < response.columns ;i++){
-                    table.rows[k].cells[i].bgColor = 'green'
-                }
-            }
-        });
-    }
     return table;
 }
 
 function buildHTML(row,cell,i,k,response,type,parameters){
-    if(i == 0){
-        cell.style.wordBreak = "keep-all";
-        if(k == response.columns){
-            cell.innerHTML = "";
-            cell.width = '150px';
-        }else{
+    var controls = createControls(response.action,parameters,row,type)
+
+    if( k < response.columns ){
+        if (i === 0){
             var header = response.field[k].charAt(0) + response.field[k].slice(1).replace('_', ' ').toLowerCase();
-            cell.innerHTML = '<h4>' + header + '</h4>';
-        }
-    }else if(i == response.rows+1 && response.action.INSERT === true){
-
-        if(k == response.columns){
-            var container = document.createElement("button");
-            container.className = "vis blue";
-            container.innerHTML = "Add";
-            var sv = function(element){
-                return function(){
-                    postInput(parameters,element, type, 'INSERT');
-                    return false;
-                };
-            }(type == 'CS'? row.parentNode :row);
-            container.onclick = sv;
-            cell.appendChild(container);
-        } else if(response.field[k] !== 'INDIVIDUAL_SETTINGS'){
-            if(response.options && (response.field[k] in  response.options)){
-                var input = selectContainer(response.options[response.field[k]]['VALUE'],response.options[response.field[k]]['LABEL'])
-            } else if(response.field[k] === 'IS_ENABLED'){
-                var input = document.createElement("input");
-                input.type = 'checkbox';
-            }else if(response.field[k] === 'CONFIG'){
-                var input = document.createElement("textarea");
-            } else {
-                var input = document.createElement("input")
-                input.type = 'text';
-            }
-            input.name = response.field[k]
-            cell.appendChild(input);
-        }
-    }else if(i !== response.rows+1){
-        if(k != response.columns){
-            cell.style.wordBreak = "break-all";
-            for(var g in response.include){
-                if(response.include[g] === response.field[k]) {
-                    if(response.options && (response.field[k] in  response.options)){
-                        var input = selectContainer(
-                            response.options[response.field[k]]['VALUE'],
-                            response.options[response.field[k]]['LABEL'],
-                            response.content[response.field[k]][i-1])
-                    }else if(response.field[k] === 'CONFIG'){
-                        var input = document.createElement("textarea");
-                        input.value = response.content[response.field[k]][i-1]
-                    }else{
-                        var input = document.createElement("input");
-                        if(response.field[k] == 'IS_ENABLED'){
-                            input.type = 'checkbox';
-
-                            if(response.content[response.field[k]][i-1] == 'Y'){
-                                input.checked = true;
-                            } else if (response.content[response.field[k]][i-1] == 'N') {
-                                input.checked = false;
-                            }
-                        } else {
-                            input.type = 'text';
-                            input.value = response.content[response.field[k]][i-1]
-                        }
+            cell.innerHTML = '<h4>' + header + '</h4>'
+        } else if((i === response.rows + 1 && response.action.INSERT) || i < response.rows + 1){
+                if(response.field[k] in response.include){
+                    if(response.field[k] in  response.options){
+                        var input = selectContainer(response.options[response.field[k]]['VALUE'],
+                                                    response.options[response.field[k]]['LABEL'],
+                                                    i < response.rows + 1 ? response.content[response.field[k]][i-1] : null)
+                    }else if (response.field[k] === 'CONFIG'){
+                        var input = document.createElement('textarea')
+                    } else {
+                        var input = document.createElement('input')
+                        input.type = response.field[k] === 'IS_ENABLED' ? 'checkbox' : 'text'
                     }
-                    if(type === 'IS')input.placeholder = 'Inherited from ' + response.content.APP_DESCRIPTION[0]
-
-                    input.disabled = (response.disabled.hasOwnProperty(response.field[k]) ? true :  false)
+                    if(i < response.rows + 1){
+                        input.disabled = response.disabled.hasOwnProperty(response.field[k])
+                        input.type === 'checkbox' ? input.checked = response.content[response.field[k]][i-1] === 'Y' : input.value = response.content[response.field[k]][i-1]
+                    }
                     input.name = response.field[k]
-                    cell.appendChild(input)
-                    break
+                    cell.appendChild(input);
+                } else if(i > 0 && i < response.rows + 1) {
+                    cell.innerHTML = response.content[response.field[k]][i-1]
                 }
             }
-            for(var g in response.ignore){
-                if(response.ignore[g] === response.field[k]) {
-                    if(response.field[k] == 'INDIVIDUAL_SETTINGS'){
-                        var input = document.createElement("input");
-                        input.type = 'checkbox';
-                        input.disabled = true;
-                        if(response.content[response.field[k]][i-1] == 'Y'){
-                            input.checked = true;
-                        } else if (response.content[response.field[k]][i-1] == 'N') {
-                            input.checked = false;
-                        }
-                        cell.appendChild(input)
-                    }else{
-                        cell.innerHTML = response.content[response.field[k]][i-1]
-                        if(type === 'IS')input.placeholder = 'Inherited from ' + response.content.APP_DESCRIPTION[0]
-                    }
-
-                }
-            }
-        }else{
-            var div = cell.appendChild(document.createElement("div"));
-            if(response.action.UPDATE){
-                var container = document.createElement("button");
-                container.className = "vis blue";
-                container.innerHTML = "Update";
-                var edt = function(element){
-                    return function(){
-                        postInput(parameters,element, type,'UPDATE');
-                        return false;
-                    };
-                }(type == 'AS'|| type == 'IS' ? row.parentNode :row)
-                container.onclick = edt;
-
-                div.appendChild(container);
-            }
-            if(response.action.DELETE){
-                var container = document.createElement("button");
-                container.className = "vis red";
-                container.innerHTML = "Delete";
-                var dlt = function(element){
-                    return function(){
-                        postInput(parameters,element, type,'DELETE');
-                        return false;
-                    };
-                }(type == 'AS'|| type == 'IS' ? row.parentNode :row);
-                container.onclick = dlt;
-                div.appendChild(container);
-            }
+    } else {
+        if(i === response.rows + 1){
+            cell.appendChild(controls['INSERT'])
+        }else if(i > 0 && i < response.rows + 1){
+            cell.appendChild(controls['UPDATE'])
+            cell.appendChild(controls['DELETE'])
         }
     }
-    if(k == response.columns && i > 0){
-        var hidden = document.createElement("input");
-        hidden.type = 'hidden'
-        hidden.name = 'TYPE'
-        cell.appendChild(hidden)
-    }
+}
+
+function createControls(actions,parameters,element,type){
+    var controls = {}
+    Object.keys(actions).forEach(function(k) {
+        if (actions[k]) {
+            controls[k] = document.createElement("button")
+            controls[k].className = "vis " + (k === "DELETE" ? "red" : "blue")
+            controls[k].innerHTML = k.charAt(0) + k.slice(1).toLowerCase()
+            var act = function(element){
+                return function(){
+                    postInput(parameters,element, type,k)
+                    return false
+                }
+            }(type == 'AS'|| type == 'IS' || type == 'CS' ? element.parentNode : element)
+            controls[k].onclick = act
+        } else {
+            controls[k] = document.createElement('span')
+        }
+    })
+    return controls
 }
 
 

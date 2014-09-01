@@ -85,7 +85,7 @@
 				case 'AI' :
 					$query = "SELECT ID AS INSTANCEID
 								   , DESCRIPTION
-								   , (CASE WHEN CONFIG IS NULL THEN 'N' ELSE 'Y' END) AS INDIVIDUAL_SETTINGS
+								   , (CASE WHEN CONFIG IS NULL THEN 'No' ELSE 'Yes' END) AS INDIVIDUAL_SETTINGS
 								   , IS_ENABLED
 							  FROM INSTANCES
 							  WHERE APP_NAME = :APP_NAME";
@@ -124,6 +124,9 @@
 									   , DESCRIPTION
 								  FROM SCHEDULES";
 
+					$dataObject->action['INSERT'] = false;
+					$dataObject->action['UPDATE'] = false;
+					$dataObject->action['DELETE'] = false;
 					$dataObject->options = array ('SCHEDULE' => array ());
 					break;
 				case 'LE' :
