@@ -96,13 +96,15 @@ function scheduleContainer(data,selected){
                 '<td ></td>' +
                 '<td >' +
                     '<button class="blue" onClick="getData(\'SA\',\'Add Schedule\',null)">Add</button>' +
-                    '<button class="blue" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#SH #head select\'))">Edit</button>' +
+                    '<button class="blue"  onClick="getData(\'EC\',\'Calendar\', null)">Exclusions</button>' +
                 '</td>' +
             '</tr>' +
             '<tr style="visibility: hidden">' +
                 '<td ><h4 >Enabled :</h4></td>' +
                 '<td ><input disabled id="schedule_state" type="checkbox" class="checkbox"></td>' +
-                '<td ><button class="blue"  onClick="getData(\'EC\',\'Calendar\', null)">Exclusions</button>' +
+                '<td >' +
+                    '<button class="blue" onClick="getData(\'SC\',\'Edit Schedule\', document.querySelector(\'#SH #head select\'))">Edit</button>' +
+                    '<button class="blue"  onClick="getData(\'LW\',\'Weekday Settings\', null)">Weekdays</button>' +
                 '</td>' +
             '</tr>'
     container.rows[0].cells[1].appendChild(select)
@@ -161,6 +163,11 @@ function flippedTable(response,type,parameters){
                     'TYPE' : type.charAt(0) + 'E',
                     'NAME' : 'Event Mapping',
                     'VALUE' : 'Edit'
+                },
+                1 : {
+                    'TYPE' : 'ES',
+                    'NAME' : 'Events Settings',
+                    'VALUE' : 'Show'
                 }
             }
         }
@@ -266,7 +273,7 @@ function buildContentArea(mode,response,type,parameters){
                             input.type = response.field[key] === 'IS_ENABLED' ? 'checkbox' : 'text'
                         }
                         if(inkey < response.rows + 1){
-                            input.disabled = response.disabled.hasOwnProperty(response.field[key])
+                            input.disabled = response.disabled.hasOwnProperty(response.field[key]) || !response.action.UPDATE
                             input.type === 'checkbox' ? input.checked = response.content[response.field[key]][inkey - 1] === 'Y' : input.value = response.content[response.field[key]][inkey - 1]
                         }
                         input.name = response.field[key]

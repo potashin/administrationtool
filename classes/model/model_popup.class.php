@@ -148,6 +148,20 @@
 					$query = "SELECT  *
 								  FROM HOSTS";
 					break;
+				case 'LW' :
+					$query = "SELECT  *
+								  FROM WEEKDAYS";
+					$dataObject->action['INSERT'] = false;
+					$dataObject->action['DELETE'] = false;
+					$dataObject->action['UPDATE'] = false;
+					break;
+				case 'ES' :
+					$query = "SELECT  *
+								  FROM EVENTTYPES";
+					$dataObject->action['INSERT'] = false;
+					$dataObject->action['DELETE'] = false;
+					$dataObject->action['UPDATE'] = false;
+					break;
 				case 'SC' :
 					$query = "SELECT ID AS SCHEDULE
 								   , DESCRIPTION
