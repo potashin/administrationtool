@@ -239,7 +239,7 @@ function originalTable(response,type,parameters){
 function buildContentArea(mode,response,type,parameters){
     var table = document.createElement('table')
     var rows = response.rows + 1
-    var columns = Object.keys(response.include).length
+    var columns = Object.keys(response.field).length
     if(!mode){
         columns = [rows, rows = columns][0]
     }

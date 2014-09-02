@@ -157,7 +157,7 @@ function getData(type,name,object){
         if (xmlhttp.readyState == 4) {
             if(xmlhttp.status == 200) {
                 var json = xmlhttp.responseText;
-                //try{
+                try{
                     var response = JSON.parse(json);
                     if(type == 'LE'){
                         document.querySelector('#SH #head table tr:nth-child(2)').style.visibility = 'visible'
@@ -209,10 +209,10 @@ function getData(type,name,object){
                         block.querySelector('.tab_label').style.width = name.length + 10 + '%'
                     }
 
-                /*}catch(e){
+                }catch(e){
                    var ee = new notification()
                    ee.set(json,'red')
-                }*/
+                }
             }
         }
     };
