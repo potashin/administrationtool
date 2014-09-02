@@ -34,12 +34,12 @@
 			                  WHERE APP_NAME = :APP_NAME";
 
 					$dataObject->ignore = array (
-						'ENABLED_HOSTS',
-						'DISABLED_HOSTS',
-						'ENABLED_EVENTS',
-						'DISABLED_EVENTS',
-						'ENABLED_INSTANCES',
-						'DISABLED_INSTANCES'
+						'ENABLED_HOSTS' => false,
+						'DISABLED_HOSTS' => false,
+						'ENABLED_EVENTS' => false,
+						'DISABLED_EVENTS' => false,
+						'ENABLED_INSTANCES' => false,
+						'DISABLED_INSTANCES' => false
 					);
 					$dataObject->action['INSERT'] = false;
 					$dataObject->options = array ('SCHEDULE' => array ());
@@ -51,12 +51,12 @@
 				                    AND INSTANCEID = :INSTANCEID";
 
 					$dataObject->ignore = array (
-						'APP_DESCRIPTION',
-						'INHERITED_SCHEDULE',
-						'ENABLED_HOSTS',
-						'DISABLED_HOSTS',
-						'ENABLED_EVENTS',
-						'DISABLED_EVENTS'
+						'APP_DESCRIPTION' => false,
+						'INHERITED_SCHEDULE' => false,
+						'ENABLED_HOSTS' => false,
+						'DISABLED_HOSTS' => false,
+						'ENABLED_EVENTS' => false,
+						'DISABLED_EVENTS' => false
 					);
 					$dataObject->action['INSERT'] = false;
 					$dataObject->options = array ('SCHEDULE' => array ());
@@ -66,9 +66,9 @@
 								  FROM GET_APPLICATIONS_HOSTS
 								  WHERE APP_NAME = :APP_NAME";
 					$dataObject->ignore = array (
-						'APP_NAME',
-						'IS_ENABLED',
-						'DESCRIPTION',
+						'APP_NAME' => false,
+						'IS_ENABLED' => false,
+						'DESCRIPTION' => false,
 					);
 					break;
 				case 'AE' :
@@ -85,12 +85,11 @@
 				case 'AI' :
 					$query = "SELECT ID AS INSTANCEID
 								   , DESCRIPTION
-								   , (CASE WHEN CONFIG IS NULL THEN 'No' ELSE 'Yes' END) AS INDIVIDUAL_SETTINGS
+								   , IIF(CONFIG IS NULL, '', 'Yes') AS CONFIGURED
 								   , IS_ENABLED
 							  FROM INSTANCES
 							  WHERE APP_NAME = :APP_NAME";
-
-					$dataObject->ignore[] = 'INDIVIDUAL_SETTINGS';
+					$dataObject->ignore = array('CONFIGURED' => true);
 					break;
 
 				case 'IH' :
@@ -100,10 +99,10 @@
 							    AND ID = :INSTANCEID";
 
 					$dataObject->ignore = array (
-						'APP_NAME',
-						'ID',
-						'IS_ENABLED',
-						'DESCRIPTION',
+						'APP_NAME' => false,
+						'ID' => false,
+						'IS_ENABLED' => false,
+						'DESCRIPTION' => false,
 					);
 					break;
 				case 'IE' :
@@ -138,7 +137,7 @@
 							  WHERE SCHEDULEID = :SCHEDULE
 							  ORDER BY EVENTTIME";
 
-					$dataObject->ignore[] = 'ACTUAL';
+					$dataObject->ignore = array('ACTUAL' => false);
 					$dataObject->options = array ('EVENTNAME' => array (), 'WORKDAY' => array ());
 					break;
 				case 'EC' :

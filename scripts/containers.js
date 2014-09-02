@@ -10,13 +10,33 @@ function selectContainer(options,description,selected){
     return container
 }
 
+function createControls(actions,parameters,element,type){
+    var controls = {}
+    Object.keys(actions).forEach(function(k) {
+        if (actions[k]) {
+            controls[k] = document.createElement("button")
+            controls[k].className = "vis " + (k === "DELETE" ? "red" : "blue")
+            controls[k].innerHTML = k.charAt(0) + k.slice(1).toLowerCase()
+            var act = function(element){
+                return function(){
+                    postInput(parameters,element, type,k)
+                    return false
+                }
+            }(type == 'AS'|| type == 'IS' || type == 'CS' ? element.parentNode : element)
+            controls[k].onclick = act
+        } else {
+            controls[k] = document.createElement('span')
+        }
+    })
+    return controls
+}
+
 function createFrame(name,id){
     var container = document.createElement('div')
     container.innerHTML =
         '<div class="shadow tab_label" >' +
-            '<div  class="closeSub" onClick="removePopup(\'' + id +'\')">' +
-                '<div class="one" ></div>' +
-                '<div class="two" ></div>' +
+            '<div  class="close" onClick="removePopup(\'' + id +'\')">' +
+                '<div></div><div></div>' +
             '</div>' +
             '<h2 >' + name + '</h2>' +
         '</div>' +
@@ -31,13 +51,13 @@ function hostContainer(parameters,data,type){
     var container = document.createElement('table')
     for(var i = 0; i< data.rows; i++){
         var row = container.insertRow(i)
-        var color = (data.content.IS_ENABLED[i] == 'Y' ? (data.content.ATTACHED[i] == 'Y' ? 'black' : 'grey' ) : 'red')
+        var color = (data.ignore.IS_ENABLED[i] == 'Y' ? (data.content.ATTACHED[i] == 'Y' ? 'black' : 'grey' ) : 'red')
         for(var k in data.include){
             var cell = row.insertCell(-1)
             if(k == 'ATTACHED'){
                 var input  = document.createElement('input')
                 input.type = "checkbox"
-                input.disabled = data.content.IS_ENABLED[i] != 'Y'
+                input.disabled = data.ignore.IS_ENABLED[i] != 'Y'
                 input.checked = data.content[k][i] == 'Y'
                 input.onclick = function(element){
                     return function(){
@@ -45,15 +65,13 @@ function hostContainer(parameters,data,type){
                     }
                 }(row)
             } else if(k == 'HOSTID') {
-                var input  = document.createElement('select')
-                var option = document.createElement('option')
-                option.value = data.content[k][i]
-                option.label = data.content[k][i]
-                input.disabled = true
-                input.style.color = color
-                input.add(option)
+                var input  = document.createElement('input')
+                input.type = 'hidden'
+                input.value = data.content[k][i]
+                cell.innerHTML = data.ignore['DESCRIPTION'][i]
+                cell.style.color = color
             }
-            input.name = data.include[k]
+            input.name = k
             cell.appendChild(input)
         }
     }
@@ -91,111 +109,107 @@ function scheduleContainer(data,selected){
     return container;
 }
 
-function appForm(response,type,parameters){
-    var table = document.createElement('table')
-    table.id = 'popup'
-    response.fields = response.include
-    response.columns = Object.keys(response.include).length
-
-    table.cellPadding = '5px'
-
+function flippedTable(response,type,parameters){
     if(type == 'CS') parameters = {'APP_NAME': '',INSTANCEID: ''}
+    var table = buildContentArea(false,response,type,parameters)
+    table.id = 'popup'
 
-    for(var i = 0;i < response.columns + 1 ;i++){
-        if(i == response.columns && Object.keys(response.ignore).length > 0){
-            var attachments = {}
-            if(!parameters.hasOwnProperty('INSTANCEID')){
-                attachments.Instances = {
-                    'ENABLED' : response.content.ENABLED_INSTANCES,
-                    'DISABLED' : response.content.DISABLED_INSTANCES,
-
-                    'ONCLICK' : {
-                        0 : {
-                            'TYPE' : 'AI',
-                            'NAME' : 'Instance Attachment',
-                            'VALUE' : 'Edit'
-                        }
-                    }
-                }
-            }
-            attachments.Hosts = {
-                'ENABLED' : response.content.ENABLED_HOSTS,
-                'DISABLED' : response.content.DISABLED_HOSTS,
+    if(Object.keys(response.ignore).length > 0){
+        var attachments = {}
+        if(!parameters.hasOwnProperty('INSTANCEID')){
+            attachments.Instances = {
+                'CONTENT' : {
+                    'ENABLED' : response.ignore.ENABLED_INSTANCES,
+                    'DISABLED' : response.ignore.DISABLED_INSTANCES
+                },
                 'ONCLICK' : {
                     0 : {
-                        'TYPE' : type.charAt(0) + 'H',
-                        'NAME' : 'Hosts Attachment',
-                        'VALUE' : 'Edit'
-                    },
-                    1 : {
-                        'TYPE' : 'LH',
-                        'NAME' : 'Host Settings',
-                        'VALUE' : 'Show'
-                    }
-
-                }
-            }
-
-            attachments.Events = {
-                'ENABLED' : response.content.ENABLED_EVENTS,
-                'DISABLED' : response.content.DISABLED_EVENTS,
-                'ONCLICK' : {
-                    0 : {
-                        'TYPE' : type.charAt(0) + 'E',
-                        'NAME' : 'Event Mapping',
+                        'TYPE' : 'AI',
+                        'NAME' : 'Instance Attachment',
                         'VALUE' : 'Edit'
                     }
                 }
             }
-
-            for(var t in attachments){
-                var row = table.insertRow(-1)
-                row.insertCell(0).innerHTML = '<h4>' + t + '</h4>'
-                var cell = row.insertCell(1)
-                for(var y in attachments[t]){
-                    if(y != 'ONCLICK' && attachments[t][y][0] != ''){
-                        var e = document.createElement('span');
-                        e.innerHTML = attachments[t][y][0]
-                        e.style.color = y === 'DISABLED' ? 'red' : 'black'
-                        cell.appendChild(e)
-                    }
+        }
+        attachments.Hosts = {
+            'CONTENT' : {
+                'ENABLED' : response.ignore.ENABLED_HOSTS,
+                'DISABLED' : response.ignore.DISABLED_HOSTS
+            },
+            'ONCLICK' : {
+                0 : {
+                    'TYPE' : type.charAt(0) + 'H',
+                    'NAME' : 'Hosts Attachment',
+                    'VALUE' : 'Edit'
+                },
+                1 : {
+                    'TYPE' : 'LH',
+                    'NAME' : 'Host Settings',
+                    'VALUE' : 'Show'
                 }
-                if(cell.innerHTML == '' && type == 'IS'){
-                    cell.innerHTML = 'Inherited from ' + response.content.APP_DESCRIPTION[0]
-                }
-                var cell = row.insertCell(2)
-
-                for(var u in attachments[t]['ONCLICK']){
-                    var e = document.createElement('input')
-                    e.type = 'button'
-                    e.value = attachments[t]['ONCLICK'][u]['VALUE']
-                    e.className = 'blue'
-                    e.onclick = function(p){
-                        return function(){
-                            getData(p['TYPE'],p['NAME'],JSON.stringify(parameters))
-                        }
-                    }(attachments[t]['ONCLICK'][u])
-                    cell.appendChild(e)
-                }
-
-
 
             }
         }
-        var row = table.insertRow(-1);
-        for(var k = 0;k < response.rows + 1 + (response.action.INSERT ? 1 : 0);k++){
-            var cell = row.insertCell(k)
-            buildHTML(row,cell,k,i,response,type,parameters)
+
+        attachments.Events = {
+            'CONTENT' : {
+                'ENABLED' : response.ignore.ENABLED_EVENTS,
+                'DISABLED' : response.ignore.DISABLED_EVENTS
+            },
+            'ONCLICK' : {
+                0 : {
+                    'TYPE' : type.charAt(0) + 'E',
+                    'NAME' : 'Event Mapping',
+                    'VALUE' : 'Edit'
+                }
+            }
         }
+        for (var t in attachments){
+            var row = table.insertRow(-1)
+            row.insertCell(0).innerHTML = '<h4>' + t + '</h4>'
+            var cell = row.insertCell(-1)
+            for(var y in attachments[t]){
+                var container = cell.appendChild(document.createElement('div'))
+                for(var u in attachments[t][y]){
+                    if(y === 'ONCLICK'){
+                        var input = container.appendChild(document.createElement('input'))
+                        input.type = 'button'
+                        input.value = attachments[t][y][u]['VALUE']
+                        input.className = 'blue'
+                        input.onclick = function(p){
+                            return function(){
+                                getData(p['TYPE'],p['NAME'],JSON.stringify(parameters))
+                            }
+                        }(attachments[t][y][u])
+                    }else {
+                        if(attachments[t][y][u][0] != ''){
+                            var element = container.appendChild(document.createElement('span'))
+                            element.innerHTML = attachments[t][y][u][0]
+                            element.style.color = u === 'DISABLED' ? 'red' : 'black'
+                        }
+                    }
+                }
+            }
+        }
+
+        if(type === 'IS'){
+            var input = table.querySelectorAll('input[type=text],textarea,div:empty')
+            var text = 'Inherited from ' + response.ignore.APP_DESCRIPTION[0]
+            Object.keys(input).forEach(function(k) {
+                input[k].placeholder = input[k].value == '' ? text : ''
+                input[k].innerHTML = text
+            })
 
     }
+
     var button = document.createElement('input')
     var schedule = table.querySelector('select[name="SCHEDULE"]')
+
     if(type == 'IS' && response.content.SCHEDULE[0] == ''){
         for(var i in schedule.options){
-            if(schedule.options[i].value == response.content.INHERITED_SCHEDULE[0]){
+            if(schedule.options[i].value == response.ignore.INHERITED_SCHEDULE[0]){
                 schedule.options[i].selected = true
-                schedule.options[i].label += ' (Inherited from ' + response.content.APP_DESCRIPTION[0] + ')'
+                schedule.options[i].label += ' (' + response.ignore.APP_DESCRIPTION[0] + ')'
             }
         }
     }
@@ -206,93 +220,75 @@ function appForm(response,type,parameters){
     button.onclick = function(){
         return getData('SH', 'Schedules & Events', schedule)
     }
-    schedule.parentNode.parentNode.insertCell(-1).appendChild(button)
+    schedule.parentNode.appendChild(button)}
 
     return table;
 }
 
 
-function createTable(response,type,parameters){
-
+function originalTable(response,type,parameters){
     if(document.getElementById(type + '_table') != null) {
         var table = document.getElementById(type + '_table')
         table.parentNode.removeChild(table)
     }
-    var table = document.createElement('table')
+    var table = buildContentArea(true,response,type,parameters)
     table.id = type + '_table'
-
-    if(type === 'LE'){
-        response.fields = response.include
-        response.columns = Object.keys(response.fields).length
-    }
-    for(var i = 0;i < response.rows+2;i++){
-        var row = table.insertRow(i);
-            for(var k = 0;k < response.columns + 1;k++){
-                var cell = table.rows[i].insertCell(k);
-                buildHTML(row,cell,i,k,response,type,parameters)
-            }
-    }
     return table;
 }
 
-function buildHTML(row,cell,i,k,response,type,parameters){
-    var controls = createControls(response.action,parameters,row,type)
-
-    if( k < response.columns ){
-        if (i === 0){
-            var header = response.field[k].charAt(0) + response.field[k].slice(1).replace('_', ' ').toLowerCase();
-            cell.innerHTML = '<h4>' + header + '</h4>'
-        } else if((i === response.rows + 1 && response.action.INSERT) || i < response.rows + 1){
-                if(response.field[k] in response.include){
-                    if(response.field[k] in  response.options){
-                        var input = selectContainer(response.options[response.field[k]]['VALUE'],
-                                                    response.options[response.field[k]]['LABEL'],
-                                                    i < response.rows + 1 ? response.content[response.field[k]][i-1] : null)
-                    }else if (response.field[k] === 'CONFIG'){
-                        var input = document.createElement('textarea')
-                    } else {
-                        var input = document.createElement('input')
-                        input.type = response.field[k] === 'IS_ENABLED' ? 'checkbox' : 'text'
+function buildContentArea(mode,response,type,parameters){
+    var table = document.createElement('table')
+    var rows = response.rows + 1
+    var columns = Object.keys(response.include).length
+    if(!mode){
+        columns = [rows, rows = columns][0]
+    }
+    for(var i = 0;i < rows + 1; i++){
+        var row = table.insertRow(-1)
+        for(var k = 0;k < columns + 1 ; k++){
+            var key = (mode ? k : i)
+            var inkey = (mode ? i : k)
+            var cell = row.insertCell(k)
+            if( key < response.columns ){
+                if (inkey === 0){
+                    var header = response.field[key].charAt(0) + response.field[key].slice(1).replace('_', ' ').toLowerCase();
+                    cell.innerHTML = '<h4>' + header + '</h4>'
+                } else if((inkey === response.rows + 1 && response.action.INSERT) || inkey < response.rows + 1){
+                    if(response.field[key] in response.include){
+                        if(response.field[key] in  response.options){
+                            var input = selectContainer(response.options[response.field[key]]['VALUE'],
+                                response.options[response.field[key]]['LABEL'],
+                                inkey < response.rows + 1 ? response.content[response.field[key]][inkey - 1] : null)
+                        }else if (response.field[key] === 'CONFIG'){
+                            var input = document.createElement('textarea')
+                        } else {
+                            var input = document.createElement('input')
+                            input.type = response.field[key] === 'IS_ENABLED' ? 'checkbox' : 'text'
+                        }
+                        if(inkey < response.rows + 1){
+                            input.disabled = response.disabled.hasOwnProperty(response.field[key])
+                            input.type === 'checkbox' ? input.checked = response.content[response.field[key]][inkey - 1] === 'Y' : input.value = response.content[response.field[key]][inkey - 1]
+                        }
+                        input.name = response.field[key]
+                        cell.appendChild(input);
+                    } else if(inkey > 0 && inkey < response.rows + 1) {
+                        cell.innerHTML = response.content[response.field[key]][inkey - 1]
                     }
-                    if(i < response.rows + 1){
-                        input.disabled = response.disabled.hasOwnProperty(response.field[k])
-                        input.type === 'checkbox' ? input.checked = response.content[response.field[k]][i-1] === 'Y' : input.value = response.content[response.field[k]][i-1]
-                    }
-                    input.name = response.field[k]
-                    cell.appendChild(input);
-                } else if(i > 0 && i < response.rows + 1) {
-                    cell.innerHTML = response.content[response.field[k]][i-1]
+                }
+            } else {
+                var controls = createControls(response.action,parameters,row,type)
+                if(inkey === response.rows + 1){
+                    cell.appendChild(controls['INSERT'])
+                }else if(inkey > 0 && inkey < response.rows + 1){
+                    cell.appendChild(controls['UPDATE'])
+                    cell.appendChild(controls['DELETE'])
                 }
             }
-    } else {
-        if(i === response.rows + 1){
-            cell.appendChild(controls['INSERT'])
-        }else if(i > 0 && i < response.rows + 1){
-            cell.appendChild(controls['UPDATE'])
-            cell.appendChild(controls['DELETE'])
         }
     }
+    return table
 }
 
-function createControls(actions,parameters,element,type){
-    var controls = {}
-    Object.keys(actions).forEach(function(k) {
-        if (actions[k]) {
-            controls[k] = document.createElement("button")
-            controls[k].className = "vis " + (k === "DELETE" ? "red" : "blue")
-            controls[k].innerHTML = k.charAt(0) + k.slice(1).toLowerCase()
-            var act = function(element){
-                return function(){
-                    postInput(parameters,element, type,k)
-                    return false
-                }
-            }(type == 'AS'|| type == 'IS' || type == 'CS' ? element.parentNode : element)
-            controls[k].onclick = act
-        } else {
-            controls[k] = document.createElement('span')
-        }
-    })
-    return controls
-}
+
 
 

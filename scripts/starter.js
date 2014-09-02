@@ -158,21 +158,23 @@ function getData(type,name,object){
         if (xmlhttp.readyState == 4) {
             if(xmlhttp.status == 200) {
                 var json = xmlhttp.responseText;
-                try{
+                //try{
                     var response = JSON.parse(json);
                     if(type == 'LE'){
                         document.querySelector('#SH #head table tr:nth-child(2)').style.visibility = 'visible'
                         document.getElementById('schedule_state').checked = object.options[object.selectedIndex].title == 'Y'
                         var content = document.querySelector('#SH #content')
-                        var table = createTable(response,type,parameters)
-                        Object.keys(response.content.ACTUAL).forEach(function(k) {
-                            if (response.content.ACTUAL[k]) {
-                                k++
-                                for(var i = 0 ;i < response.columns ; i++){
-                                    table.rows[k].cells[i].bgColor = 'green'
+                        var table = originalTable(response,type,parameters)
+                        if( response.ignore.ACTUAL != null){
+                            Object.keys(response.ignore.ACTUAL).forEach(function(k) {
+                                if (response.ignore.ACTUAL[k]) {
+                                    k++
+                                    for(var i = 0 ;i < response.columns ; i++){
+                                        table.rows[k].cells[i].bgColor = 'green'
+                                    }
                                 }
-                            }
-                        })
+                            })
+                        }
                         content.appendChild(table)
                     }else{
                         location.hash = affix + name.replace(/ /g, '')
@@ -185,29 +187,33 @@ function getData(type,name,object){
                             table = scheduleContainer(response,object.value)
                             head.appendChild(table)
                             getData('LE',null,head.querySelector('select'))
-
+                            width = table.rows[0].cells.length * 15
                         }else{
+                            var width
                             switch(type){
                                 case 'AS':
                                 case 'IS':
-                                case 'CS':  table = appForm(response,type,parameters)
+                                case 'CS':  table = flippedTable(response,type,parameters)
+                                            width = table.rows[0].cells.length * 20
                                             break
                                 case 'AH':
                                 case 'IH':  table = hostContainer(parameters,response,type)
+                                            width = table.rows[0].cells.length * 15
                                             break
-                                default :   table = createTable(response,type,parameters)
+                                default :   table = originalTable(response,type,parameters)
+                                            width = table.rows[0].cells.length * 11
                             }
                             content.appendChild(table)
                         }
-                        var width = Object.keys(response.include).length
-                        block.querySelector('.tab').style.width = width * (width > 5 ? 10 : 18) + '%'
+
+                        block.querySelector('.tab').style.width = width + '%'
                         block.querySelector('.tab_label').style.width = name.length + 10 + '%'
                     }
 
-                }catch(e){
-                    var ee = new notification()
-                    ee.set(json,'red')
-                }
+                /*}catch(e){
+                   var ee = new notification()
+                   ee.set(json,'red')
+                }*/
             }
         }
     };
@@ -278,7 +284,7 @@ function postInput(parameters,element,type,action){
                     }
                 }catch(e){
                     var ee = new notification()
-                    ee.set(json,'red')
+                    ee.set(json,'darkred')
                 }
             }
         }
