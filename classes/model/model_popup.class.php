@@ -221,12 +221,6 @@
 				default :
 					throw new \Exception('Undefined perform request');
 			}
-			array_walk(
-				$parameter, function (&$item)
-				{
-					$item = empty($item) ? null : $item;
-				}
-			);
 
 			$query = 'EXECUTE PROCEDURE'
 			         . ' ' . $procedure
