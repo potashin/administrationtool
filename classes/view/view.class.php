@@ -17,7 +17,6 @@ class View extends \Classes\Core\Lang
 
 	public function generate($data)
 	{
-		$counter = 0;
 		if ((is_array($data) || is_object($data)) && file_exists($this->content)) {
 			include ($this->content);
 		}

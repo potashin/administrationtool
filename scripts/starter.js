@@ -19,9 +19,8 @@ function getXmlHttp(){
     return xmlhttp;
 }
 
-function doSSH(id,app)
-{
-    var row = document.getElementById(id)
+function doSSH(app,id){
+    var row = document.getElementById(app+ '_' +id)
     var xmlhttp = getXmlHttp()
     var parameters = {
         'HOST' : row.querySelector('select').value,

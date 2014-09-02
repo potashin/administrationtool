@@ -1,11 +1,11 @@
-<tr id="<?php echo $counter ?>">
+<tr id="<?php echo $value['SUMMARY']['APP_NAME'] . '_' . $v['INSTANCEID'] ?>">
 	<td>
 		<div class='circle' style="background-color:
-			<?php
+<?php
 				if ($v['IS_RUNNING'] == 'Y' and intval($v['HB_DELTA']) < 15) echo 'green';
 				elseif ($v['IS_RUNNING'] == 'Y' and intval($v['HB_DELTA']) > 15) echo 'orange';
 				elseif ($v['IS_RUNNING'] == 'N') echo 'red';
-			?>">
+?>      ">
 		</div>
 	</td>
 	<td><?php $object['INSTANCEID'] = $v['INSTANCEID'];?>
@@ -14,30 +14,33 @@
 	<td><?php echo $v['DESCRIPTION'] ?></td>
 	<td data-stamp="LAST_HEARTBEAT" ><?php echo $v['LAST_HEARTBEAT'] == '' ? 'Нет данных' : $v['LAST_HEARTBEAT'] ?></td>
 	<td><?php echo $v['EVENTTIME'] ?></td>
-	<?php if ($v['IS_RUNNING'] == "N" and ($v['EVENTNAME'] == "Start" or $v['EVENTNAME'] == "Resume"))
+<?php
+	if($v['COMMAND'] != '' && $v['PARAMETERS'])
 	{
-		?>
+		if ($v['IS_RUNNING'] == "N" and ($v['EVENTNAME'] == "Start" or $v['EVENTNAME'] == "Resume"))
+		{
+?>
 		<td >
 			<select >
-			<?php
+<?php
 				foreach ($v['HOSTS'] as $key => $option)
 				{
-			?>
+?>
 					<option value="<?php echo $option ?>" label="<?php echo $v['HOSTS_DESC'][$key] ?>"></option>
-			<?php
+<?php
 				}
-			?>
+?>
 			</select>
 		</td>
 		<td>
 			<button class='blue'
-			        onClick="doSSH('<?php echo $counter ?>','<?php echo $value['SUMMARY']['APP_NAME'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
+			        onClick="doSSH('<?php echo $value['SUMMARY']['APP_NAME'] ?>','<?php echo $v['INSTANCEID'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
 		</td>
-	<?php
-	}
-	elseif ($v['IS_RUNNING'] == "Y" and ($v['EVENTNAME'] == "Stop" or $v['EVENTNAME'] == "Suspend"))
-	{
-		?>
+<?php
+		}
+		elseif ($v['IS_RUNNING'] == "Y" and ($v['EVENTNAME'] == "Stop" or $v['EVENTNAME'] == "Suspend"))
+		{
+?>
 		<td>
 			<select disabled >
 				<option value="<?php echo $v['RUNNING'] ?>" label="<?php echo $v['RUNNING_DESC'] ?>"></option>
@@ -45,28 +48,36 @@
 		</td>
 		<td>
 			<button class='blue'
-			        onClick="doSSH('<?php echo $counter ?>','<?php echo $value['SUMMARY']['APP_NAME'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
+			        onClick="doSSH('<?php echo $value['SUMMARY']['APP_NAME'] ?>','<?php echo $v['INSTANCEID'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
 		</td>
-	<?php
+<?php
+		}
+		else
+		{
+
+		}
 	}
 	else
 	{
-		?>
-		<?php if ($v['IS_RUNNING'] == "Y")
-	{
-		?>
+		if ($v['IS_RUNNING'] == "Y")
+		{
+?>
 		<td>
 			<select disabled >
 				<option value="<?php echo $v['RUNNING'] ?>" label="<?php echo $v['RUNNING_DESC'] ?>"></option>
 			</select>
 		</td>
-	<?php
-	}
-	elseif ($v['IS_RUNNING'] == "N")
-	{
-		?>
+<?php
+		}
+		elseif ($v['IS_RUNNING'] == "N")
+		{
+?>
 		<td></td>
-	<?php } ?>
-		<td><?php echo $v['EVENTNAME'] ?></td>
-	<?php } ?>
+<?php
+		}
+?>
+	<td><?php echo $v['EVENTNAME'] ?></td>
+<?php
+	}
+?>
 </tr>
