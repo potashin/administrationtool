@@ -118,15 +118,28 @@
 					$dataObject->options = array ('EVENTNAME');
 					break;
 				case 'SH' :
-					$query = "SELECT ID
-									   , IS_ENABLED
-									   , DESCRIPTION
-								  FROM SCHEDULES";
+					$query = "SELECT *
+							  FROM SCHEDULES";
 
 					$dataObject->action['INSERT'] = false;
 					$dataObject->action['UPDATE'] = false;
 					$dataObject->action['DELETE'] = false;
 					$dataObject->options = array ('SCHEDULE');
+					break;
+				case 'SC' :
+					$query = "SELECT *
+							  FROM SCHEDULES
+						      WHERE ID = :SCHEDULE";
+
+					$dataObject->action['INSERT'] = false;
+					break;
+				case 'SA' :
+					$query = "SELECT *
+							  FROM SCHEDULES
+							  WHERE 1 <> 1";
+
+					$dataObject->action['UPDATE'] = false;
+					$dataObject->action['DELETE'] = false;
 					break;
 				case 'LE' :
 					$query = "SELECT EVENTTIME
@@ -161,25 +174,6 @@
 					$dataObject->action['INSERT'] = false;
 					$dataObject->action['DELETE'] = false;
 					$dataObject->action['UPDATE'] = false;
-					break;
-				case 'SC' :
-					$query = "SELECT ID AS SCHEDULE
-								   , DESCRIPTION
-								   , IS_ENABLED
-								  FROM SCHEDULES
-						      WHERE ID = :SCHEDULE";
-
-					$dataObject->action['INSERT'] = false;
-					break;
-				case 'SA' :
-					$query = "SELECT ID AS SCHEDULE
-								   , DESCRIPTION
-								   , IS_ENABLED
-								  FROM SCHEDULES
-							  WHERE 1 <> 1";
-
-					$dataObject->action['UPDATE'] = false;
-					$dataObject->action['DELETE'] = false;
 					break;
 				default :
 					return 'Undefined show request';
