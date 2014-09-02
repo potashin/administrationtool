@@ -26,7 +26,7 @@
 
 					$dataObject->action['UPDATE'] = false;
 					$dataObject->action['DELETE'] = false;
-					$dataObject->options = array ('SCHEDULE' => array ());
+					$dataObject->options = array ('SCHEDULE');
 					break;
 				case 'AS' :
 					$query = "SELECT *
@@ -34,15 +34,15 @@
 			                  WHERE APP_NAME = :APP_NAME";
 
 					$dataObject->ignore = array (
-						'ENABLED_HOSTS' => false,
-						'DISABLED_HOSTS' => false,
-						'ENABLED_EVENTS' => false,
-						'DISABLED_EVENTS' => false,
-						'ENABLED_INSTANCES' => false,
+						'ENABLED_HOSTS'      => false,
+						'DISABLED_HOSTS'     => false,
+						'ENABLED_EVENTS'     => false,
+						'DISABLED_EVENTS'    => false,
+						'ENABLED_INSTANCES'  => false,
 						'DISABLED_INSTANCES' => false
 					);
 					$dataObject->action['INSERT'] = false;
-					$dataObject->options = array ('SCHEDULE' => array ());
+					$dataObject->options = array ('SCHEDULE');
 					break;
 				case 'IS' :
 					$query = "SELECT *
@@ -51,23 +51,23 @@
 				                    AND INSTANCEID = :INSTANCEID";
 
 					$dataObject->ignore = array (
-						'APP_DESCRIPTION' => false,
+						'APP_DESCRIPTION'    => false,
 						'INHERITED_SCHEDULE' => false,
-						'ENABLED_HOSTS' => false,
-						'DISABLED_HOSTS' => false,
-						'ENABLED_EVENTS' => false,
-						'DISABLED_EVENTS' => false
+						'ENABLED_HOSTS'      => false,
+						'DISABLED_HOSTS'     => false,
+						'ENABLED_EVENTS'     => false,
+						'DISABLED_EVENTS'    => false
 					);
 					$dataObject->action['INSERT'] = false;
-					$dataObject->options = array ('SCHEDULE' => array ());
+					$dataObject->options = array ('SCHEDULE');
 					break;
 				case 'AH' :
 					$query = "SELECT *
 								  FROM GET_APPLICATIONS_HOSTS
 								  WHERE APP_NAME = :APP_NAME";
 					$dataObject->ignore = array (
-						'APP_NAME' => false,
-						'IS_ENABLED' => false,
+						'APP_NAME'    => false,
+						'IS_ENABLED'  => false,
 						'DESCRIPTION' => false,
 					);
 					break;
@@ -78,7 +78,7 @@
 							  FROM GET_APPLICATION_EVENTS
 							  WHERE APP_NAME = :APP_NAME";
 
-					$dataObject->options = array ('EVENTNAME' => array ());
+					$dataObject->options = array ('EVENTNAME');
 					$dataObject->action['DELETE'] = false;
 					$dataObject->action['INSERT'] = false;
 					break;
@@ -89,7 +89,7 @@
 								   , IS_ENABLED
 							  FROM INSTANCES
 							  WHERE APP_NAME = :APP_NAME";
-					$dataObject->ignore = array('CONFIGURED' => true);
+					$dataObject->ignore = array ('CONFIGURED' => true);
 					break;
 
 				case 'IH' :
@@ -99,9 +99,9 @@
 							    AND ID = :INSTANCEID";
 
 					$dataObject->ignore = array (
-						'APP_NAME' => false,
-						'ID' => false,
-						'IS_ENABLED' => false,
+						'APP_NAME'    => false,
+						'ID'          => false,
+						'IS_ENABLED'  => false,
 						'DESCRIPTION' => false,
 					);
 					break;
@@ -115,7 +115,7 @@
 
 					$dataObject->action['DELETE'] = false;
 					$dataObject->action['INSERT'] = false;
-					$dataObject->options = array ('EVENTNAME' => array ());
+					$dataObject->options = array ('EVENTNAME');
 					break;
 				case 'SH' :
 					$query = "SELECT ID
@@ -126,7 +126,7 @@
 					$dataObject->action['INSERT'] = false;
 					$dataObject->action['UPDATE'] = false;
 					$dataObject->action['DELETE'] = false;
-					$dataObject->options = array ('SCHEDULE' => array ());
+					$dataObject->options = array ('SCHEDULE');
 					break;
 				case 'LE' :
 					$query = "SELECT EVENTTIME
@@ -137,8 +137,8 @@
 							  WHERE SCHEDULEID = :SCHEDULE
 							  ORDER BY EVENTTIME";
 
-					$dataObject->ignore = array('ACTUAL' => false);
-					$dataObject->options = array ('EVENTNAME' => array (), 'WORKDAY' => array ());
+					$dataObject->ignore = array ('ACTUAL' => false);
+					$dataObject->options = array ('EVENTNAME', 'WORKDAY');
 					break;
 				case 'EC' :
 					$query = "SELECT  *
@@ -170,6 +170,7 @@
 				default :
 					return 'Undefined show request';
 			}
+
 			return $dataObject->getDataObject($query, $parameter);
 		}
 
@@ -187,13 +188,13 @@
 					break;
 				case 'AA' :
 				case 'AI' :
-					$end = array_splice($parameter, -1,1);
+					$end = array_splice($parameter, -1, 1);
 					$parameter = array_merge(
 						$parameter,
-						array(
+						array (
 							'SCHEDULEID' => null,
-							'CONFIG' => null,
-							'PATH' => null,
+							'CONFIG'     => null,
+							'PATH'       => null,
 						),
 						$end
 					);

@@ -294,5 +294,5 @@ function postInput(parameters,element,type,action){
 }
 
 function showDetails(element){
-    element.style.display = (element.style.display == 'none' || element.style.display == '') ? 'block' : 'none';
+    element.style.display = (element.style.display == 'none' || element.style.display == '') ? 'table' : 'none';
 }
