@@ -31,12 +31,12 @@ function doSSH(app,id){
     var json = JSON.stringify(parameters)
     var par = "data="+encodeURIComponent(json)
     var ee = new notification()
-    ee.set("Loading . . . ",'white')
+    ee.set("Loading . . . ")
     xmlhttp.open('POST','http://administrating/Remote/Execute/', true)
     xmlhttp.onreadystatechange=function(){
       if (xmlhttp.readyState == 4){
          if(xmlhttp.status == 200){
-             ee.set(xmlhttp.responseText,'white')
+             ee.set(xmlhttp.responseText)
          }
         }
       }
@@ -91,24 +91,39 @@ function correctDate(date){
 function notification()
 {
     this.class = 'notification'
-    this.timeOut
-    this.element = document.body.appendChild(document.createElement('div'))
-    this.remove = function (){
-        this.timeOut = setTimeout(
-            function(){
-                document.body.removeChild(this.element)
-            },5000
-        )
-    }
-
+    this.timeOut = null
+    this.element = null
 }
 
-notification.prototype.set = function (message, color){
-    this.element.className = this.class
-    this.element.innerHTML = message
-    this.element.style.color = color
-    clearTimeout(this.timeOut)
-    this.remove()
+notification.prototype.remove = function(){
+    this.element.parentNode.removeChild(this.element)
+    this.element = null
+}
+
+notification.prototype.set = function (message){
+    if(this.element == null){
+        this.element = document.body.appendChild(document.createElement('div'))
+        this.timeOut = null
+        this.element.className = this.class
+    }
+    try{
+        message = JSON.parse(message)
+        this.element.style.color = 'red'
+    }catch (e){
+        this.element.style.color = 'white'
+    } finally {
+        this.element.innerHTML = message
+        if(this.timeOut != null){
+            clearTimeout(this.timeOut)
+        }
+        this.timeOut = setTimeout(
+           function(object){
+              return function(){
+                   object.remove()
+               }
+           }(this), 5000
+        )
+    }
 }
 
 function removePopup(id){
@@ -158,7 +173,7 @@ function getData(type,name,object){
             if(xmlhttp.status == 200) {
                 var json = xmlhttp.responseText;
                 try{
-                    var response = JSON.parse(json);
+                    var response = JSON.parse(json)
                     if(type == 'LE'){
                         document.querySelector('#SH #head table tr:nth-child(2)').style.visibility = 'visible'
                         document.getElementById('schedule_state').checked = object.options[object.selectedIndex].title == 'Y'
@@ -206,12 +221,12 @@ function getData(type,name,object){
                         }
 
                         block.querySelector('.tab').style.width = width + '%'
-                        block.querySelector('.tab_label').style.width = name.length + 10 + '%'
+                        block.querySelector('.tab_label').style.width = name.length + 5 + '%'
                     }
 
                 }catch(e){
                    var ee = new notification()
-                   ee.set(json,'red')
+                   ee.set(json)
                 }
             }
         }
@@ -269,21 +284,17 @@ function postInput(parameters,element,type,action){
         if (xmlhttp.readyState == 4){
             if(xmlhttp.status == 200){
                 var json = xmlhttp.responseText
-                try{
-                    if(json == ''){
-                        if(type == 'LE'){
-                            getData(type, null, document.querySelector('#SH head select'))
-                        } else if(type != 'AS' && type != 'IS' && type != 'AH' && type != 'IH'){
-                            getData(type, document.getElementById('#' + type + ' h2').innerHTML, viewParam)
-                        } else if (type == 'AS' || type == 'IS'){
-                            location.reload()
-                        }
-                    }else {
-                        throw 'Error'
+                if(json == ''){
+                    if(type == 'LE'){
+                        getData(type, null, document.querySelector('#SH head select'))
+                    } else if(type != 'AS' && type != 'IS' && type != 'AH' && type != 'IH'){
+                        getData(type, document.getElementById('#' + type + ' h2').innerHTML, viewParam)
+                    } else if (type == 'AS' || type == 'IS'){
+                        location.reload()
                     }
-                }catch(e){
+                } else {
                     var ee = new notification()
-                    ee.set(json,'darkred')
+                    ee.set(json)
                 }
             }
         }

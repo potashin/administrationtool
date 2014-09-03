@@ -15,7 +15,7 @@
     try {
 	    \Classes\Core\Route::start();
     } catch (\Exception $error){
-        echo $error->getMessage();
+        echo json_encode($error->getMessage(),JSON_FORCE_OBJECT);
     }
 
 

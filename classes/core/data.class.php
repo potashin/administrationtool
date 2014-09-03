@@ -135,8 +135,8 @@
 		private function setDisabled()
 		{
 			$query = "SELECT KEYS
-				  FROM GET_PK_KEYS
-				  WHERE KEYS IN('" . implode("', '", array_flip($this->include)) . "')";
+					  FROM GET_PK_KEYS
+					  WHERE KEYS IN('" . implode("', '", array_flip($this->include)) . "')";
 			$result = $this->connection->query($query)->execute();
 			while ($row = $result->fetch())
 			{
