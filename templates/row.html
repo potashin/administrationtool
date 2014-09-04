@@ -12,7 +12,7 @@
 		<button onclick="getData('IS','Instance Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')"><?php echo $v['INSTANCEID'] ?></button>
 	</td>
 	<td><?php echo $v['DESCRIPTION'] ?></td>
-	<td data-stamp="LAST_HEARTBEAT" ><?php echo $v['LAST_HEARTBEAT'] == '' ? 'Нет данных' : $v['LAST_HEARTBEAT'] ?></td>
+	<td data-stamp="LAST_HEARTBEAT"><script> document.write(correctDate('<?php echo $v['LAST_HEARTBEAT'] ?>'))</script></td>
 	<td><?php echo $v['EVENTTIME'] ?></td>
 <?php
 	if($v['COMMAND'] != '' && $v['PARAMETERS'])

@@ -292,7 +292,7 @@ table#popup textarea {
 #main .label {
 	position: absolute;
 	height: 39px;
-	width: 200px;
+	width: 300px;
 	left: 0;
 	-webkit-border-radius: 15px 0 0 15px;
 	-moz-border-radius: 15px 0 0 15px;
@@ -327,3 +327,4 @@ table#popup textarea {
 #head table tr td:nth-child(1) { width: 100px; text-align: right; }
 #head table tr td:nth-child(2) { width: 200px; text-align: left; }
 #head table tr td:nth-child(3) { width: 200px }
+#content { overflow-y:auto;}

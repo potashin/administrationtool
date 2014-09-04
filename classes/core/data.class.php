@@ -18,6 +18,8 @@
 
 		public $field = array ();
 
+		public $headers = true;
+
 		public $options = array ();
 
 		public $content = array ();
@@ -27,6 +29,8 @@
 		public $include = array ();
 
 		public $disabled = array ();
+
+		public $hidden = array();
 
 		private $connection;
 
@@ -54,7 +58,8 @@
 					$this->columns--;
 				}
 			}
-			$this->include = array_diff_key(array_flip($this->field), $this->ignore);
+			$this->include =array_diff_key(array_flip($this->field), $this->ignore);
+			$this->field = array_values($this->field);
 			$this->setDisabled();
 
 			if ($this->options)

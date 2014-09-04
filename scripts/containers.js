@@ -31,51 +31,45 @@ function createControls(actions, parameters, element, type) {
     return controls
 }
 
-function createFrame(name, id) {
-    var container = document.createElement('div')
-    container.innerHTML =
-        '<div class="shadow tab_label" >' +
-            '<div  class="close" onClick="removePopup(\'' + id + '\')">' +
-            '<div></div><div></div>' +
-            '</div>' +
-            '<h2 >' + name + '</h2>' +
-            '</div>' +
-            '<div class="shadow tab">' +
-            '<div id="head"></div>' +
-            '<div id="content"></div>' +
-            '</div>'
-    return container
+function removeElement(id){
+    var block = document.getElementById(id)
+    if(block != null) {
+        block.parentNode.removeChild(block)
+    }
+}
+
+function createPopup(name, id) {
+    removeElement(id)
+    var block = document.body.appendChild(document.createElement('div'))
+    block.id = id
+    block.className = 'popup'
+    block.innerHTML = '<div class="shadow tab_label" >' +
+                         '<div  class="close" onClick="removeElement(\'' + id + '\')">' +
+                            '<div></div><div></div>' +
+                         '</div>' +
+                         '<h2 >' + name + '</h2>' +
+                      '</div>' +
+                      '<div class="shadow tab">' +
+                         '<div id="head"></div>' +
+                         '<div id="content" style="max-height: ' + 0.7*window.innerHeight+ 'px"></div>' +
+                      '</div>'
+    return block
 }
 
 function hostContainer(parameters, data, type) {
-    var container = document.createElement('table')
+    var table = buildContentArea(true, data,type,parameters)
     for (var i = 0; i < data.rows; i++) {
-        var row = container.insertRow(i)
         var color = (data.ignore.IS_ENABLED[i] == 'Y' ? (data.content.ATTACHED[i] == 'Y' ? 'black' : 'grey' ) : 'red')
-        for (var k in data.include) {
-            var cell = row.insertCell(-1)
-            if (k == 'ATTACHED') {
-                var input = document.createElement('input')
-                input.type = "checkbox"
-                input.disabled = data.ignore.IS_ENABLED[i] != 'Y'
-                input.checked = data.content[k][i] == 'Y'
-                input.onclick = function (element) {
-                    return function () {
-                        return postInput(parameters, element, type)
-                    }
-                }(row)
-            } else if (k == 'HOSTID') {
-                var input = document.createElement('input')
-                input.type = 'hidden'
-                input.value = data.content[k][i]
-                cell.innerHTML = data.ignore['DESCRIPTION'][i]
-                cell.style.color = color
+        table.rows[i].cells[0].style.color = color
+        var input = table.rows[i].querySelector('input[type="checkbox"]')
+        input.disabled = data.ignore.IS_ENABLED[i] != 'Y'
+        input.onclick = function (element) {
+            return function () {
+                 return postInput(parameters, element, type)
             }
-            input.name = k
-            cell.appendChild(input)
-        }
+        }(table.rows[i])
     }
-    return container
+    return table
 }
 
 function scheduleContainer(data, selected) {
@@ -91,7 +85,7 @@ function scheduleContainer(data, selected) {
         }
     }
 
-    var container = document.createElement('table');
+    var container = document.createElement('table')
     container.innerHTML =
         '<tr >' +
             '<td ><h4 >Schedule :</h4></td>' +
@@ -110,7 +104,7 @@ function scheduleContainer(data, selected) {
             '</td>' +
             '</tr>'
     container.rows[0].cells[1].appendChild(select)
-    return container;
+    return container
 }
 
 function flippedTable(response, type, parameters) {
@@ -235,36 +229,33 @@ function flippedTable(response, type, parameters) {
     }
     schedule.parentNode.appendChild(button)
 
-    return table;
+    return table
 }
 
 
 function originalTable(response, type, parameters) {
-    if (document.getElementById(type + '_table') != null) {
-        var table = document.getElementById(type + '_table')
-        table.parentNode.removeChild(table)
-    }
+    removeElement(type + '_table')
     var table = buildContentArea(true, response, type, parameters)
     table.id = type + '_table'
-    return table;
+    return table
 }
 
 function buildContentArea(mode, response, type, parameters) {
     var table = document.createElement('table')
-    var rows = response.rows + 1
-    var columns = Object.keys(response.field).length
+    var rows = response.rows + 2
+    var columns = Object.keys(response.field).length + (response.action.INSERT ||response.action.DELETE || response.action.UPDATE ? 1 : 0)
     if (!mode) {
-        columns = [rows, rows = columns][0]
+        columns = [rows - (response.action.DELETE || response.action.UPDATE ? 1 : 0), rows = columns][0]
     }
-    for (var i = 0; i < rows + 1; i++) {
+    for (var i = (response.headers ? 0 : 1); i < rows; i++) {
         var row = table.insertRow(-1)
-        for (var k = 0; k < columns + 1; k++) {
+        for (var k = 0; k < columns; k++) {
             var key = (mode ? k : i)
             var inkey = (mode ? i : k)
             var cell = row.insertCell(k)
             if (key < response.columns) {
                 if (inkey === 0) {
-                    var header = response.field[key].charAt(0) + response.field[key].slice(1).replace('_', ' ').toLowerCase();
+                    var header = response.field[key].charAt(0) + response.field[key].slice(1).replace('_', ' ').toLowerCase()
                     cell.innerHTML = '<h4>' + header + '</h4>'
                 } else if ((inkey === response.rows + 1 && response.action.INSERT) || inkey < response.rows + 1) {
                     if (response.field[key] in response.include) {
@@ -276,16 +267,22 @@ function buildContentArea(mode, response, type, parameters) {
                             var input = document.createElement('textarea')
                         } else {
                             var input = document.createElement('input')
-                            input.type = response.field[key] === 'IS_ENABLED' ? 'checkbox' : 'text'
+                            input.type = response.field[key] === 'IS_ENABLED' || response.field[key] === 'ATTACHED'  ? 'checkbox' : 'text'
                         }
                         if (inkey < response.rows + 1) {
                             input.disabled = response.disabled.hasOwnProperty(response.field[key]) || !response.action.UPDATE
                             input.type === 'checkbox' ? input.checked = response.content[response.field[key]][inkey - 1] === 'Y' : input.value = response.content[response.field[key]][inkey - 1]
                         }
                         input.name = response.field[key]
-                        cell.appendChild(input);
+                        cell.appendChild(input)
                     } else if (inkey > 0 && inkey < response.rows + 1) {
                         cell.innerHTML = response.content[response.field[key]][inkey - 1]
+                        if(response.field[key] in response.hidden){
+                            var input = cell.appendChild(document.createElement('input'))
+                            input.type = 'hidden'
+                            input.name = response.hidden[response.field[key]]
+                            input.value = response.ignore[input.name][inkey - 1]
+                        }
                     }
                 }
             } else {

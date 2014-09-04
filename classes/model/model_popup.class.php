@@ -63,13 +63,22 @@
 					break;
 				case 'AH' :
 					$query = "SELECT *
-								  FROM GET_APPLICATIONS_HOSTS
-								  WHERE APP_NAME = :APP_NAME";
+							  FROM GET_APPLICATIONS_HOSTS
+							  WHERE APP_NAME = :APP_NAME";
+
 					$dataObject->ignore = array (
-						'APP_NAME'    => false,
-						'IS_ENABLED'  => false,
-						'DESCRIPTION' => false,
+						'APP_NAME'   => false,
+						'IS_ENABLED' => false,
+						'HOSTID'     => false,
+						'DESCRIPTION' => true,
 					);
+					$dataObject->hidden = array (
+						'DESCRIPTION' => 'HOSTID'
+					);
+					$dataObject->headers = false;
+					$dataObject->action['DELETE'] = false;
+					$dataObject->action['INSERT'] = false;
+					$dataObject->action['UPDATE'] = false;
 					break;
 				case 'AE' :
 					$query = "SELECT EVENTNAME
@@ -99,11 +108,19 @@
 							    AND ID = :INSTANCEID";
 
 					$dataObject->ignore = array (
-						'APP_NAME'    => false,
-						'ID'          => false,
-						'IS_ENABLED'  => false,
-						'DESCRIPTION' => false,
+						'APP_NAME'   => false,
+						'ID'         => false,
+						'IS_ENABLED' => false,
+						'HOSTID'     => false,
+						'DESCRIPTION' => true,
 					);
+					$dataObject->hidden = array (
+						'DESCRIPTION' => 'HOSTID'
+					);
+					$dataObject->headers = false;
+					$dataObject->action['DELETE'] = false;
+					$dataObject->action['INSERT'] = false;
+					$dataObject->action['UPDATE'] = false;
 					break;
 				case 'IE' :
 					$query = "SELECT EVENTNAME

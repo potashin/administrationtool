@@ -8,9 +8,12 @@
         <script type="text/javascript" src="/scripts/starter.js"></script>
     </head>
     <script>
-        //setInterval(function(){getHeartBeat()}, 15000);
+	    var notification = new notification()
+	    setInterval(function(){
+		    getHeartBeat()
+	    }, 15000);
     </script>
-    <body onload="correctAllDates()">
+    <body >
         <div id="main" >
             <div class="shadow">
                 <h3 ><?php $this->showMessage('COPYRIGHT')?></h3>
