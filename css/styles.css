@@ -314,18 +314,18 @@ table.flipped textarea {
 
 #main select { float: left; }
 #main table { display: none;}
-#main td:nth-child(1),#main th:nth-child(1) { width: 5% }
-#main td:nth-child(2),#main th:nth-child(2) { width: 15% }
-#main td:nth-child(3),#main th:nth-child(3) { width: 15% }
-#main td:nth-child(4),#main th:nth-child(4) { width: 25% }
-#main td:nth-child(5),#main th:nth-child(5) { width: 15% }
-#main td:nth-child(6),#main th:nth-child(6) { width: 15%;text-align: left }
-#main td:nth-child(7),#main th:nth-child(7) { width: 15% }
 
-.head table {
-	width: 450px;
-	margin: 0 auto;
-}
+#main th:nth-child(1) { width: 5% }
+#main th:nth-child(2) { width: 15% }
+#main th:nth-child(3) { width: 15% }
+#main th:nth-child(4) { width: 25% }
+#main th:nth-child(5) { width: 15% }
+#main th:nth-child(6) { width: 15%;}
+#main th:nth-child(7) { width: 15% }
+
+#main td:nth-child(6) {text-align: left}
+
+.head table {width: 450px;margin: 0 auto;}
 .head table tr td:nth-child(1) { width: 100px; text-align: right; }
 .head table tr td:nth-child(2) { width: 200px; }
 .head table tr td:nth-child(3) { width: 200px }
