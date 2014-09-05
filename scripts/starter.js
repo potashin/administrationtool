@@ -131,11 +131,15 @@ function notification()
     this.class = 'notification'
     this.timeOut = null
     this.element = null
+	this.reload = false
 }
 
 notification.prototype.remove = function(){
     this.element.parentNode.removeChild(this.element)
     this.element = null
+	if(this.reload){
+		location.reload()
+	}
 }
 
 notification.prototype.set = function (message){
@@ -147,8 +151,10 @@ notification.prototype.set = function (message){
     try{
         message = JSON.parse(message)
         this.element.style.color = 'red'
+	    this.reload = false
     }catch (e){
         this.element.style.color = 'white'
+	    this.reload = true
     } finally {
         this.element.innerHTML = message
         if(this.timeOut != null){
@@ -167,8 +173,8 @@ notification.prototype.set = function (message){
 function customizeTable(table,type, response){
     switch(type){
         case 'LE':
-            var object = document.querySelector('#' + type +' .head select')
-            document.querySelector('#' + type +' .head input').checked = object.options[object.selectedIndex].title == 'Y'
+            var object = document.querySelector('#' + type +' .body > div:first-child select')
+            document.querySelector('#' + type +' .body > div:first-child input').checked = object.options[object.selectedIndex].title == 'Y'
             if( response.content.ACTUAL != null){
                 Object.keys(response.content.ACTUAL).forEach(function(k) {
                     if (response.content.ACTUAL[k]) {
@@ -257,12 +263,12 @@ function show(type,name,object){
         if (xmlhttp.readyState == 4) {
             if(xmlhttp.status == 200) {
                 var json = xmlhttp.responseText
-                try{
+               /* try{*/
                     var response = JSON.parse(json)
                     var block = createPopup(type)
                     if (!name ) {
                         var table = buildHeadArea(response,document.querySelector('select[name=SCHEDULE]').value)
-	                    document.querySelector('#' + type + ' .head').appendChild(table)
+	                    document.querySelector('#' + type + ' .body > div:first-child').appendChild(table)
 	                    table.querySelector('select').onchange()
                     } else {
 	                    location.hash = affix
@@ -273,12 +279,12 @@ function show(type,name,object){
 	                    block.querySelector('#' + type + ' .header h2').innerHTML = name
 
 	                    customizeTable(table,type,response)
-	                    
-	                    document.querySelector('#' + type + ' .content').appendChild(table)
+
+	                    document.querySelector('#' + type + ' .body > div:last-child ').appendChild(table)
                     }
-                }catch(e){
+                /*}catch(e){
                    notification.set(json)
-                }
+                }*/
             }
         }
     }
@@ -306,22 +312,14 @@ function postInput(parameters,element,type,action){
           return
         }
     }
+	var viewParam = null
 
-    var viewParam = {}
-
-    if(Object.keys(parameters).length > 0){
-        Object.keys(parameters).forEach(function(k){
-            viewParam[k] = parameters[k]
-        })
-        viewParam = JSON.stringify(viewParam)
-    }else{
-        viewParam = null
-    }
-    if(parameters.hasOwnProperty('APP_NAME') && !parameters.hasOwnProperty('INSTANCEID')){
-        parameters.INSTANCEID = null
+	if(Object.keys(parameters).length > 0){
+        viewParam = JSON.stringify(parameters)
     }
 
     var parameters = collectInput(element,parameters)
+
     if(action != null){
         parameters.TYPE = action
     }
@@ -335,9 +333,7 @@ function postInput(parameters,element,type,action){
             if(xmlhttp.status == 200){
                 var json = xmlhttp.responseText
                 if(json == ''){
-                    if(type == 'LE'){
-                        show(type, null, document.querySelector('#LE .head select'))
-                    }else if (type == 'AS' || type == 'IS' || type == 'CS'){
+                    if (type == 'AS' || type == 'IS' || type == 'CS'){
                         location.reload()
                     }else{
                         show(type, document.querySelector('#' + type + ' h2').innerHTML, viewParam)

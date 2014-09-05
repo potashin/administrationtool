@@ -45,16 +45,21 @@ function createPopup(id) {
         var block = document.body.appendChild(document.createElement('div'))
         block.id = id
         block.className = 'popup'
-        block.innerHTML = '<div class="shadow header" >' +
-            '<div  class="close" onClick="removeElement(\'' + id + '\')">' +
-            '<div></div><div></div>' +
-            '</div>' +
-            '<h2 ></h2>' +
-            '</div>' +
-            '<div class="shadow body">' +
-            '<div class="head"></div>' +
-            '<div class="content" style="max-height: ' + 0.6*window.innerHeight+ 'px"></div>' +
-            '</div>'
+
+	    var container = block.appendChild(document.createElement('div'))
+	    container.className = "shadow header"
+
+	    var close = container.appendChild(document.createElement('div'))
+	    container.appendChild(document.createElement('h2'))
+	    close.className = 'close'
+	    close.onclick = function(){
+		    return removeElement(id)
+	    }
+
+	    var body = block.appendChild(document.createElement('div'))
+	    body.className = 'shadow body'
+	    body.appendChild(document.createElement('div'))
+	    body.appendChild(document.createElement('div')).style.maxHeight = 0.6 * window.innerHeight + 'px'
     }
 
     return block
@@ -89,7 +94,7 @@ function buildHeadArea(data, selected) {
             '<td ><h4 >Enabled :</h4></td>' +
             '<td ><input disabled type="checkbox"></td>' +
             '<td >' +
-            '<button onClick="show(\'SC\',\'Edit Schedule\', document.querySelector(\'#LE .head select\'))">Edit</button>' +
+            '<button onClick="show(\'SC\',\'Edit Schedule\', document.querySelector(\'#LE .body > div:first-child select\'))">Edit</button>' +
             '<button onClick="show(\'LW\',\'Weekday Settings\', null)">Weekdays</button>' +
             '</td>' +
             '</tr>'
@@ -128,7 +133,7 @@ function buildContentArea(mode, response, type, parameters) {
                             var input = document.createElement('textarea')
                         } else {
                             var input = document.createElement('input')
-                            input.type = response.field[key] === 'ENABLED' || response.field[key] === 'ATTACHED'  ? 'checkbox' : 'text'
+                            input.type = response.field[key] === 'ENABLED' || response.field[key] === 'IS_ENABLED' || response.field[key] === 'ATTACHED'  ? 'checkbox' : 'text'
                         }
                         if (inkey < response.rows + 1) {
                             input.disabled = response.disabled.hasOwnProperty(response.field[key]) || !response.action.UPDATE

@@ -44,6 +44,9 @@
 					);
 					$dataObject->action['INSERT'] = false;
 					$dataObject->table = false;
+					$dataObject->hidden = array (
+						'APP_NAME' => 'INSTANCEID'
+					);
 					$dataObject->options = array ('SCHEDULE');
 					break;
 				case 'IS' :
