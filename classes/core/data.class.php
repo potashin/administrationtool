@@ -26,11 +26,11 @@
 
 		public $ignore = array ();
 
-		public $include = array ();
-
 		public $disabled = array ();
 
-		public $hidden = array();
+		public $hidden = array ();
+
+		public  $table = true;
 
 		private $connection;
 
@@ -48,19 +48,9 @@
 			$this->query = $query;
 			$this->setContent($query, $parameter);
 			$this->setFields();
-			foreach ($this->ignore as $key => &$value)
-			{
-				if (!$value)
-				{
-					$value = $this->content[$key];
-					unset($this->field[array_search($key, $this->field)]);
-					unset($this->content[$key]);
-					$this->columns--;
-				}
-			}
-			$this->include =array_diff_key(array_flip($this->field), $this->ignore);
-			$this->field = array_values($this->field);
+
 			$this->setDisabled();
+			$this->columns = count($this->field);
 
 			if ($this->options)
 			{
@@ -72,17 +62,20 @@
 
 		private function setContent($query, $parameter)
 		{
-			$resource = $this->connection
-				->query($query)
-				->execute($parameter);
-
-			$this->columns = $resource->columnCount();
+			$resource = $this->connection->query($query)->execute($parameter);
 
 			while ($row = $resource->fetch())
 			{
 				foreach ($row as $key => $value)
 				{
-					$this->content[$key][] = trim($value);
+					if (strpos($key, '#') !== false)
+					{
+						$temp = explode('#', $key);
+						$this->content[$temp[1]][$temp[0]][] = $value;
+
+					} else {
+						$this->content[$key][] = trim($value);
+					}
 				}
 				$this->rows++;
 			}
@@ -95,10 +88,8 @@
 			$query = "SELECT *
 						FROM GET_OPTIONS
 						WHERE NAME IN ('" . implode("', '", $this->options) . "')";
-
-			$resource = $this->connection
-				->query($query)
-				->execute();
+			$this->options = array_flip($this->options);
+			$resource = $this->connection->query($query)->execute();
 			while ($row = $resource->fetch())
 			{
 				$this->options[trim($row['NAME'])] = array (
@@ -119,13 +110,10 @@
 					$this->query = substr($this->query, 0, $length);
 				}
 				$query = "SELECT FIRST 1 m.*
-					  FROM (SELECT CURRENT_TIMESTAMP AS FIELD
-							FROM RDB\$DATABASE) c
-					  LEFT JOIN ({$this->query}) m ON 1 = 1";
-				$temp = $this->connection->query($query)
-					->execute()
-					->fetch();
-
+						  FROM (SELECT CURRENT_TIMESTAMP AS FIELD
+								FROM RDB\$DATABASE) c
+						  LEFT JOIN ({$this->query}) m ON 1 = 1";
+				$temp = $this->connection->query($query)->execute()->fetch();
 			}
 			else
 			{
@@ -133,7 +121,10 @@
 			}
 			foreach ($temp as $key => $value)
 			{
-				$this->field[] = $key;
+				if (!array_key_exists($key, $this->ignore) or $this->ignore[$key])
+				{
+					$this->field[] = $key;
+				}
 			}
 		}
 
@@ -141,7 +132,7 @@
 		{
 			$query = "SELECT KEYS
 					  FROM GET_PK_KEYS
-					  WHERE KEYS IN('" . implode("', '", array_flip($this->include)) . "')";
+					  WHERE KEYS IN('" . implode("', '", $this->field) . "')";
 			$result = $this->connection->query($query)->execute();
 			while ($row = $result->fetch())
 			{

@@ -155,101 +155,130 @@ notification.prototype.set = function (message){
             clearTimeout(this.timeOut)
         }
         this.timeOut = setTimeout(
-           function(object){
+           function(element){
               return function(){
-                   object.remove()
+                   element.remove()
                }
            }(this), 5000
         )
     }
 }
 
-function getData(type,name,object){
+function customizeTable(table,type, response){
+    switch(type){
+        case 'LE':
+            var object = document.querySelector('#' + type +' .head select')
+            document.querySelector('#' + type +' .head input').checked = object.options[object.selectedIndex].title == 'Y'
+            if( response.content.ACTUAL != null){
+                Object.keys(response.content.ACTUAL).forEach(function(k) {
+                    if (response.content.ACTUAL[k]) {
+                        k++
+                        for(var i = 0 ;i < response.columns ; i++){
+                            table.rows[k].cells[i].bgColor = 'green'
+                        }
+                    }
+                })
+            }
+            break
+	    case 'IS':
+		    var input = table.querySelectorAll('input[type=text],textarea,div:empty,select[name="SCHEDULE"]')
+		    var text = 'Inherited from ' + response.content.APP_DESCRIPTION[0]
+		    Object.keys(input).forEach(function (k) {
+			    if (input[k].type == 'text' || input[k].type == 'textarea') {
+				    input[k].placeholder = input[k].value == '' ? text : ''
+			    } else if (input[k].type == 'select-one') {
+				    for (var i in input[k].options) {
+					    if (input[k].options[i].value == response.content.INHERITED_SCHEDULE[0] &&
+						    (response.content.SCHEDULE[0] == '' ||
+							    response.content.INHERITED_SCHEDULE[0] == response.content.SCHEDULE[0])
+						    ){
+						    input[k].options[i].selected = true
+						    input[k].options[i].label += ' (' + response.content.APP_DESCRIPTION[0] + ')'
+					    }
+				    }
+			    } else {
+				    input[k].innerHTML = text
+			    }
+		    })
+	    case 'AS':
+	    case 'CS':
+		    var button = document.createElement('button')
+		    var schedule = table.querySelector('select[name="SCHEDULE"]')
+		    button.innerHTML = 'Show'
+		    button.onclick = function () {
+			    return show('LE', null, null)
+		    }
+		    schedule.parentNode.appendChild(button)
+		    break
+        case 'AH':
+        case 'IH':
+            for (var i = 0; i < response.rows; i++) {
+                var color = (response.content.IS_ENABLED[i] == 'Y' ? (response.content.ATTACHED[i] == 'Y' ? 'black' : 'grey' ) : 'red')
+                table.rows[i].cells[0].style.color = color
+                var input = table.rows[i].querySelector('input[type="button"]')
+                input.type = 'checkbox'
+                input.className = ''
+                input.checked = response.content.ATTACHED[i] == 'Y'
+                input.disabled = response.content.IS_ENABLED[i] != 'Y'
+                /*input.onclick = function (element) {
+	                 return function () {
+	                    return postInput(parameters, element, type)
+	                 }
+                 }(table.rows[i])*/
+
+            }
+            break
+        default : return
+    }
+}
+
+function show(type,name,object){
     var parameters = {}
     var post = null
-    switch(type){
-        case 'IH' :
-        case 'IE' :
-        case 'AH' :
-        case 'AE' :
-        case 'IS' :
-        case 'AS' :
-        case 'AI' : object = JSON.parse(object)
-                    parameters = object
-                    break
-        case 'SC' :
-        case 'LE' : parameters.SCHEDULE = object.value
-                    break
-
-        default : parameters = {}
+    if(object != null && typeof object === 'object' && object.nodeName){
+        parameters[object.name] = object.value
+    } else if (typeof object === 'string'){
+        parameters = JSON.parse(object)
     }
 
-    var xmlhttp = getXmlHttp()
-    var affix = 'Popup/Show/Type/'
-    xmlhttp.open('POST', '/' + affix  + type,true)
     if(Object.keys(parameters).length > 0){
         var json = JSON.stringify(parameters)
         post = "data=" + encodeURIComponent(json)
+	    var affix = name.replace(/ /g,'')
+	    Object.keys(parameters).forEach(
+		    function(k){
+			    affix += '/' + parameters[k]
+		    }
+	    )
     }
+    var xmlhttp = getXmlHttp()
+    xmlhttp.open('POST', '/Popup/Show/Type/' + type,true)
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4) {
             if(xmlhttp.status == 200) {
                 var json = xmlhttp.responseText
-                /*try{*/
+                try{
                     var response = JSON.parse(json)
-                    if(type == 'LE'){
-                        document.querySelector('#SH #head table tr:nth-child(2)').style.visibility = 'visible'
-                        document.getElementById('schedule_state').checked = object.options[object.selectedIndex].title == 'Y'
-                        var content = document.querySelector('#SH #content')
-                        var table = originalTable(response,type,parameters)
-                        if( response.ignore.ACTUAL != null){
-                            Object.keys(response.ignore.ACTUAL).forEach(function(k) {
-                                if (response.ignore.ACTUAL[k]) {
-                                    k++
-                                    for(var i = 0 ;i < response.columns ; i++){
-                                        table.rows[k].cells[i].bgColor = 'green'
-                                    }
-                                }
-                            })
-                        }
-                        content.appendChild(table)
-                    }else{
-                        location.hash = affix + name.replace(/ /g, '')
-                        var block = createPopup(name,type)
-                        var content = document.querySelector('#' + type + ' #content')
-                        var head = document.querySelector('#' + type + ' #head')
-                        var table
-                        if (type == 'SH') {
-                            table = scheduleContainer(response,object.value)
-                            head.appendChild(table)
-                            getData('LE',null,head.querySelector('select'))
-                            width = table.rows[0].cells.length * 15
-                        }else{
-                            var width
-                            switch(type){
-                                case 'AS':
-                                case 'IS':
-                                case 'CS':  table = flippedTable(response,type,parameters)
-                                            width = table.rows[0].cells.length * 30
-                                            break
-                                case 'AH':
-                                case 'IH':  //table = originalTable(response,type,parameters)
-                                            table = hostContainer(parameters,response,type)
-                                            width = table.rows[0].cells.length * 15
-                                            break
-                                default :   table = originalTable(response,type,parameters)
-                                            width = table.rows[0].cells.length * 11
-                            }
-                            content.appendChild(table)
-                        }
+                    var block = createPopup(type)
+                    if (!name ) {
+                        var table = buildHeadArea(response,document.querySelector('select[name=SCHEDULE]').value)
+	                    document.querySelector('#' + type + ' .head').appendChild(table)
+	                    table.querySelector('select').onchange()
+                    } else {
+	                    location.hash = affix
+	                    var table = buildContentArea(response.table, response, type, parameters)
+                        var width = response.table ? (response.columns + 1) * 11 : (response.rows + 2) * 20
+	                    block.querySelector('#' + type + ' .body').style.width = width + '%'
+	                    block.querySelector('#' + type + ' .header').style.width = name.length + 5 + '%'
+	                    block.querySelector('#' + type + ' .header h2').innerHTML = name
 
-                        block.querySelector('.tab').style.width = width + '%'
-                        block.querySelector('.tab_label').style.width = name.length + 5 + '%'
+	                    customizeTable(table,type,response)
+	                    
+	                    document.querySelector('#' + type + ' .content').appendChild(table)
                     }
-
-               /* }catch(e){
+                }catch(e){
                    notification.set(json)
-                }*/
+                }
             }
         }
     }
@@ -262,7 +291,7 @@ function collectInput(element,parameters){
     for(var i in parameters){
         p[i] = parameters[i]
     }
-    var input = element.querySelectorAll('input[name],textarea,select')
+    var input = element.querySelectorAll('input[name]:not([type=button]),textarea,select')
     for(var i = 0; i < input.length ; i++){
         var value = input[i].type == 'checkbox' ? ( input[i].checked === true ? 'Y' : 'N' ) : input[i].value
         p[input[i].name] = value
@@ -293,7 +322,6 @@ function postInput(parameters,element,type,action){
     }
 
     var parameters = collectInput(element,parameters)
-
     if(action != null){
         parameters.TYPE = action
     }
@@ -308,11 +336,11 @@ function postInput(parameters,element,type,action){
                 var json = xmlhttp.responseText
                 if(json == ''){
                     if(type == 'LE'){
-                        getData(type, null, document.querySelector('#SH head select'))
+                        show(type, null, document.querySelector('#LE .head select'))
                     }else if (type == 'AS' || type == 'IS'){
                         location.reload()
                     }else{
-                        getData(type, document.querySelector('#' + type + ' h2').innerHTML, viewParam)
+                        show(type, document.querySelector('#' + type + ' h2').innerHTML, viewParam)
                     }
                 } else {
                     notification.set(json)
@@ -351,5 +379,3 @@ function getHeartBeat(){
     }
     xmlhttp.send(null)
 }
-
-

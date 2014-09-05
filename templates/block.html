@@ -12,7 +12,7 @@
 	$object = array();
 	$object['APP_NAME'] = $value['SUMMARY']['APP_NAME'];
 ?>
-	<button class="label" onclick="getData('AS','Application Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
+	<button class="label" onclick="show('AS','Application Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')">
 		<h3><?php echo $value['SUMMARY']['APP_DESC'] ?></h3>
 	</button>
 <?php

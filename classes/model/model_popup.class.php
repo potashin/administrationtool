@@ -17,15 +17,19 @@
 				case 'CS' :
 					$query = "SELECT APP_NAME
 									, DESCRIPTION
-									, IS_ENABLED
+									, ENABLED
 									, PATH
 									, SCHEDULE
-									, CONFIG
+									, CONFIGURATION
 			                  FROM GET_APPLICATION_SETTINGS
 			                  WHERE 1 <> 1";
 
 					$dataObject->action['UPDATE'] = false;
 					$dataObject->action['DELETE'] = false;
+					$dataObject->table = false;
+					$dataObject->hidden = array (
+						'APP_NAME' => 'INSTANCEID'
+					);
 					$dataObject->options = array ('SCHEDULE');
 					break;
 				case 'AS' :
@@ -34,14 +38,12 @@
 			                  WHERE APP_NAME = :APP_NAME";
 
 					$dataObject->ignore = array (
-						'ENABLED_HOSTS'      => false,
-						'DISABLED_HOSTS'     => false,
-						'ENABLED_EVENTS'     => false,
-						'DISABLED_EVENTS'    => false,
-						'ENABLED_INSTANCES'  => false,
-						'DISABLED_INSTANCES' => false
+						'HOSTS'      => true,
+						'EVENTS'     => true,
+						'INSTANCES'  => true,
 					);
 					$dataObject->action['INSERT'] = false;
+					$dataObject->table = false;
 					$dataObject->options = array ('SCHEDULE');
 					break;
 				case 'IS' :
@@ -53,12 +55,11 @@
 					$dataObject->ignore = array (
 						'APP_DESCRIPTION'    => false,
 						'INHERITED_SCHEDULE' => false,
-						'ENABLED_HOSTS'      => false,
-						'DISABLED_HOSTS'     => false,
-						'ENABLED_EVENTS'     => false,
-						'DISABLED_EVENTS'    => false
+						'HOSTS'      => true,
+						'EVENTS'     => true,
 					);
 					$dataObject->action['INSERT'] = false;
+					$dataObject->table = false;
 					$dataObject->options = array ('SCHEDULE');
 					break;
 				case 'AH' :
@@ -71,6 +72,7 @@
 						'IS_ENABLED' => false,
 						'HOSTID'     => false,
 						'DESCRIPTION' => true,
+					    'ATTACHED' =>false
 					);
 					$dataObject->hidden = array (
 						'DESCRIPTION' => 'HOSTID'
@@ -78,7 +80,7 @@
 					$dataObject->headers = false;
 					$dataObject->action['DELETE'] = false;
 					$dataObject->action['INSERT'] = false;
-					$dataObject->action['UPDATE'] = false;
+					//$dataObject->action['UPDATE'] = false;
 					break;
 				case 'AE' :
 					$query = "SELECT EVENTNAME
@@ -134,15 +136,6 @@
 					$dataObject->action['INSERT'] = false;
 					$dataObject->options = array ('EVENTNAME');
 					break;
-				case 'SH' :
-					$query = "SELECT *
-							  FROM SCHEDULES";
-
-					$dataObject->action['INSERT'] = false;
-					$dataObject->action['UPDATE'] = false;
-					$dataObject->action['DELETE'] = false;
-					$dataObject->options = array ('SCHEDULE');
-					break;
 				case 'SC' :
 					$query = "SELECT *
 							  FROM SCHEDULES
@@ -158,17 +151,29 @@
 					$dataObject->action['UPDATE'] = false;
 					$dataObject->action['DELETE'] = false;
 					break;
+				/*case 'SH' :
+					$query = "SELECT *
+							  FROM SCHEDULES";
+					$dataObject->options = array ('SCHEDULE');
+					break;*/
 				case 'LE' :
-					$query = "SELECT EVENTTIME
+					if(empty($parameter)){
+						$query = "SELECT *
+							      FROM SCHEDULES";
+						$dataObject->options = array ('SCHEDULE');
+					}
+					else
+					{
+						$query = "SELECT EVENTTIME
 								   , EVENTNAME
 								   , WORKDAY
 								   , ACTUAL
 							  FROM GET_EVENTS
 							  WHERE SCHEDULEID = :SCHEDULE
 							  ORDER BY EVENTTIME";
-
-					$dataObject->ignore = array ('ACTUAL' => false);
-					$dataObject->options = array ('EVENTNAME', 'WORKDAY');
+						$dataObject->ignore = array ('ACTUAL' => false);
+						$dataObject->options = array ('EVENTNAME', 'WORKDAY');
+					}
 					break;
 				case 'EC' :
 					$query = "SELECT  *
@@ -195,6 +200,7 @@
 				default :
 					return 'Undefined show request';
 			}
+			//var_dump($dataObject->getDataObject($query, $parameter));
 
 			return $dataObject->getDataObject($query, $parameter);
 		}

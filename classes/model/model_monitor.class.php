@@ -1,8 +1,6 @@
 <?php
 
 namespace Classes\Model;
-use Ratchet\MessageComponentInterface;
-use Ratchet\ConnectionInterface;
 
 class Model_Monitor extends Model
 {
@@ -11,6 +9,7 @@ class Model_Monitor extends Model
 	}
 
 	public function execute(){
+		$this->checkChanges();
 		return $this->getHeartbeat();
 	}
 
@@ -29,7 +28,7 @@ class Model_Monitor extends Model
 		return json_encode($final,JSON_FORCE_OBJECT);
 	}
 
-	private function getChanges(){
+	private function checkChanges(){
 
 	}
 }
