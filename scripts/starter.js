@@ -25,8 +25,8 @@ function doSSH(app,id){
     var parameters = {
         'HOST' : row.querySelector('select').value,
         'APP_NAME' : app,
-        'INSTANCE' : row.querySelector('button').innerHTML,
-        'COMMAND' : row.querySelector('button[class="blue"]').innerHTML
+        'INSTANCE' : id,
+        'COMMAND' : row.querySelectorAll('button')[1].innerHTML
     }
     var json = JSON.stringify(parameters)
     var par = "data="+encodeURIComponent(json)
@@ -337,7 +337,7 @@ function postInput(parameters,element,type,action){
                 if(json == ''){
                     if(type == 'LE'){
                         show(type, null, document.querySelector('#LE .head select'))
-                    }else if (type == 'AS' || type == 'IS'){
+                    }else if (type == 'AS' || type == 'IS' || type == 'CS'){
                         location.reload()
                     }else{
                         show(type, document.querySelector('#' + type + ' h2').innerHTML, viewParam)
@@ -353,8 +353,7 @@ function postInput(parameters,element,type,action){
 }
 
 function showDetails(element){
-    var style = element.style.display
-    element.style.display = (style == 'none' || style == '') ? 'table' : 'none'
+    element.style.display = element.style.display == 'table' ? 'none' : 'table'
 }
 
 function getHeartBeat(){
