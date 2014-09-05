@@ -60,26 +60,6 @@ function createPopup(id) {
     return block
 }
 
-/*function hostContainer(parameters, response, type) {
-    var table = buildContentArea(true, response,type,parameters)
-    for (var i = 0; i < response.rows; i++) {
-        var color = (response.content.IS_ENABLED[i] == 'Y' ? (response.content.ATTACHED[i] == 'Y' ? 'black' : 'grey' ) : 'red')
-        table.rows[i].cells[0].style.color = color
-        var input = table.rows[i].querySelector('input[type="button"]')
-        input.type = 'checkbox'
-        input.className = ''
-        input.checked = response.content.ATTACHED[i] == 'Y'
-        input.disabled = response.content.IS_ENABLED[i] != 'Y'
-        *//*input.onclick = function (element) {
-            return function () {
-                return postInput(parameters, element, type)
-            }
-        }(table.rows[i])*//*
-
-    }
-    return table
-}*/
-
 function buildHeadArea(data, selected) {
     var select = selectContainer(data.content.ID, data.content.DESCRIPTION, selected);
     select.onchange = function () {
@@ -116,13 +96,6 @@ function buildHeadArea(data, selected) {
     container.rows[0].cells[1].appendChild(select)
     return container
 }
-
-/*function flippedTable(response, type, parameters) {
-    if (type == 'CS') parameters = {'APP_NAME': '', INSTANCEID: ''}
-    var table = buildContentArea(false, response, type, parameters)
-
-    return table
-}*/
 
 function buildContentArea(mode, response, type, parameters) {
     var table = document.createElement('table')
