@@ -57,7 +57,7 @@ select {
 	font-family: Times;
 	font-size: 15px;
 	color: black;
-	height: 23px;
+	height: 24px;
 	-webkit-appearance: none;
 	padding: 0 10px;
 	border: 1px solid black;
@@ -213,7 +213,7 @@ table.flipped tr td:nth-child(2) div:last-child {
 }
 
 table.flipped textarea {
-	max-width: 450px;
+	max-width: 90%;
 }
 
 .notification {
@@ -326,8 +326,9 @@ table.flipped textarea {
 
 #main td:nth-child(6) {text-align: left}
 
-.body div:first-child  table {width: 450px;margin: 0 auto;}
-.body div:first-child  table tr td:nth-child(1) { width: 100px; text-align: right; }
-.body div:first-child  table tr td:nth-child(2) { width: 200px; }
-.body div:first-child table tr td:nth-child(3) { width: 200px }
+.body div:first-child  table {width: 400px;margin: 0 auto;}
+.body div:first-child  table tr td:nth-child(1) { width: 70px; text-align: left;}
+.body div:first-child  table tr td:nth-child(2) { width: 330px; }
 .body div:last-child { overflow-y:auto;}
+
+

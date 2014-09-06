@@ -39,7 +39,6 @@
 		public function __construct()
 		{
 			$this->connection = new \Classes\Core\Database();
-
 			return $this;
 		}
 
@@ -57,7 +56,7 @@
 				$this->setOptions();
 			}
 
-			return json_encode($this, JSON_FORCE_OBJECT);
+			return $this;
 		}
 
 		private function setContent($query, $parameter)
@@ -94,7 +93,8 @@
 			{
 				$this->options[trim($row['NAME'])] = array (
 					'VALUE' => explode(',', $row['VALUE']),
-					'LABEL' => explode(',', $row['LABEL'])
+					'LABEL' => explode(',', $row['LABEL']),
+				    'TITLE' => explode(',', $row['TITLE'])
 				);
 			}
 

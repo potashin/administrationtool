@@ -9,7 +9,7 @@
 			parent::__construct();
 		}
 
-		public function show($type, $parameter = array ())
+		public function getBody($type, $parameter = array ())
 		{
 			$dataObject = new \Classes\Core\Data();
 			switch ($type['TYPE'])
@@ -112,12 +112,20 @@
 							  WHERE APP_NAME = :APP_NAME
 							    AND ID = :INSTANCEID";
 
+					/*$dataObject->ignore = array (
+						'APP_NAME'   => false,
+						'ID'         => false,
+						'IS_ENABLED' => false,
+						'HOSTID'     => false,
+						'DESCRIPTION' => true,
+					);*/
 					$dataObject->ignore = array (
 						'APP_NAME'   => false,
 						'ID'         => false,
 						'IS_ENABLED' => false,
 						'HOSTID'     => false,
 						'DESCRIPTION' => true,
+						'ATTACHED' =>false
 					);
 					$dataObject->hidden = array (
 						'DESCRIPTION' => 'HOSTID'
@@ -125,7 +133,7 @@
 					$dataObject->headers = false;
 					$dataObject->action['DELETE'] = false;
 					$dataObject->action['INSERT'] = false;
-					$dataObject->action['UPDATE'] = false;
+					//$dataObject->action['UPDATE'] = false;
 					break;
 				case 'IE' :
 					$query = "SELECT EVENTNAME
@@ -154,29 +162,16 @@
 					$dataObject->action['UPDATE'] = false;
 					$dataObject->action['DELETE'] = false;
 					break;
-				/*case 'SH' :
-					$query = "SELECT *
-							  FROM SCHEDULES";
-					$dataObject->options = array ('SCHEDULE');
-					break;*/
 				case 'LE' :
-					if(empty($parameter)){
-						$query = "SELECT *
-							      FROM SCHEDULES";
-						$dataObject->options = array ('SCHEDULE');
-					}
-					else
-					{
-						$query = "SELECT EVENTTIME
+					$query = "SELECT EVENTTIME
 								   , EVENTNAME
 								   , WORKDAY
 								   , ACTUAL
 							  FROM GET_EVENTS
 							  WHERE SCHEDULEID = :SCHEDULE
 							  ORDER BY EVENTTIME";
-						$dataObject->ignore = array ('ACTUAL' => false);
-						$dataObject->options = array ('EVENTNAME', 'WORKDAY');
-					}
+					$dataObject->ignore = array ('ACTUAL' => false);
+					$dataObject->options = array ('EVENTNAME', 'WORKDAY');
 					break;
 				case 'EC' :
 					$query = "SELECT  *
@@ -203,9 +198,25 @@
 				default :
 					return 'Undefined show request';
 			}
-			//var_dump($dataObject->getDataObject($query, $parameter));
+			return json_encode($dataObject->getDataObject($query, $parameter));
+		}
 
-			return $dataObject->getDataObject($query, $parameter);
+		public function getHead($type, $parameter = array ()){
+			$dataObject = new \Classes\Core\Data();
+			switch($type['TYPE']){
+				case 'LE' :
+					$query = "SELECT ID AS SCHEDULE
+								   , IS_ENABLED AS ENABLED
+						      FROM SCHEDULES
+						      WHERE ID = :SCHEDULE";
+					$dataObject->options = array ('SCHEDULE');
+					$dataObject->table = false;
+					$dataObject->action['DELETE'] = false;
+					$dataObject->action['INSERT'] = false;
+					$dataObject->action['UPDATE'] = false;
+					break;
+			}
+			return json_encode($dataObject->getDataObject($query, $parameter),JSON_FORCE_OBJECT);
 		}
 
 		public function perform($type, $parameter)

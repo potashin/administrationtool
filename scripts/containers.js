@@ -1,12 +1,24 @@
-function selectContainer(options, description, selected) {
+function selectContainer(mode, options, selected) {
     var container = document.createElement('select')
-    for (var i in options) {
-        var option = document.createElement('option')
-        option.value = options[i]
-        option.label = description[i]
-        option.selected = options[i] === selected ? true : false
-        container.add(option)
-    }
+	Object.keys(options['VALUE']).forEach(function(i){
+		if(mode && options['TITLE'][i] === 'N'){
+			return
+		}
+		var option = document.createElement('option')
+		option.value = options['VALUE'][i]
+		option.label = options['LABEL'][i]
+		option.title = options['TITLE'][i]
+		option.selected =options['VALUE'][i] === selected ? true : false
+		container.add(option)
+	})
+	container.addEventListener(
+		'change',
+		function(){
+			this.style.color = this.options[container.selectedIndex].title == 'Y' ? 'black' : 'red'
+		},
+		true
+	)
+	container.dispatchEvent(new Event('change'))
     return container
 }
 
@@ -22,7 +34,6 @@ function createControls(actions, parameters, element, type) {
             controls[k].onclick = function (element) {
                 return function () {
                     postInput(parameters, element, type, k)
-                    return false
                 }
             }(element)
         }
@@ -40,7 +51,7 @@ function removeElement(id){
 function createPopup(id) {
     if(document.getElementById(id) != null) {
 	    var block = document.getElementById(id)
-        removeElement(id + '_table')
+        removeElement(id + '_original')
     }else{
         var block = document.body.appendChild(document.createElement('div'))
         block.id = id
@@ -53,7 +64,7 @@ function createPopup(id) {
 	    container.appendChild(document.createElement('h2'))
 	    close.className = 'close'
 	    close.onclick = function(){
-		    return removeElement(id)
+		    removeElement(id)
 	    }
 
 	    var body = block.appendChild(document.createElement('div'))
@@ -65,59 +76,23 @@ function createPopup(id) {
     return block
 }
 
-function buildHeadArea(data, selected) {
-    var select = selectContainer(data.content.ID, data.content.DESCRIPTION, selected);
-    select.onchange = function () {
-        return show('LE','Schedules & Events', select)
-    }
-    for (var i in select.options) {
-        for (var k = 0; k < data.rows; k++) {
-            if (data.content.ID[k] == select.options[i].value) {
-                select.options[i].title = data.content.IS_ENABLED[k]
-            }
-        }
-    }
-
-    select.name = 'SCHEDULE'
-
-    var container = document.createElement('table')
-    container.innerHTML =
-        '<tr >' +
-            '<td ><h4 >Schedule :</h4></td>' +
-            '<td ></td>' +
-            '<td >' +
-            '<button onClick="show(\'SA\',\'Add Schedule\',null)">Add</button>' +
-            '<button onClick="show(\'EC\',\'Calendar\', null)">Exclusions</button>' +
-            '</td>' +
-            '</tr>' +
-            '<tr >' +
-            '<td ><h4 >Enabled :</h4></td>' +
-            '<td ><input disabled type="checkbox"></td>' +
-            '<td >' +
-            '<button onClick="show(\'SC\',\'Edit Schedule\', document.querySelector(\'#LE .body > div:first-child select\'))">Edit</button>' +
-            '<button onClick="show(\'LW\',\'Weekday Settings\', null)">Weekdays</button>' +
-            '</td>' +
-            '</tr>'
-    container.rows[0].cells[1].appendChild(select)
-    return container
-}
-
-function buildContentArea(mode, response, type, parameters) {
+function buildTable(response, type, parameters) {
     var table = document.createElement('table')
-    table.id = type + '_table'
-    table.className = mode ? 'original' : 'flipped'
 
-    var rows = response.rows + 2
+    table.className = response.table ? 'original' : 'flipped'
+	table.id = type + '_' + table.className
+
+	var rows = response.rows + 1 + (response.action.INSERT ? 1 : 0)
     var columns = Object.keys(response.field).length + (response.action.INSERT ||response.action.DELETE || response.action.UPDATE ? 1 : 0)
-    if (!mode) {
-        columns = [rows - (response.action.DELETE || response.action.UPDATE ? 1 : 0), rows = columns][0]
+    if (!response.table) {
+        columns = [rows + (response.action.DELETE || response.action.UPDATE ? 1 : 0), rows = columns][0]
     }
     var header = {}
     for (var i = (response.headers ? 0 : 1); i < rows; i++) {
         var row = table.insertRow(-1)
         for (var k = 0; k < columns; k++) {
-            var key = (mode ? k : i)
-            var inkey = (mode ? i : k)
+            var key = (response.table ? k : i)
+            var inkey = (response.table ? i : k)
             var cell = row.insertCell(k)
             if (key < response.columns) {
                 if (inkey === 0) {
@@ -126,9 +101,9 @@ function buildContentArea(mode, response, type, parameters) {
                 } else if ((inkey === response.rows + 1 && response.action.INSERT) || inkey < response.rows + 1) {
                     if (!(response.field[key] in response.ignore)) {
                         if (response.field[key] in  response.options) {
-                            var input = selectContainer(response.options[response.field[key]]['VALUE'],
-                                response.options[response.field[key]]['LABEL'],
-                                inkey < response.rows + 1 ? response.content[response.field[key]][inkey - 1] : null)
+                            var input = selectContainer(response.table,
+							                            response.options[response.field[key]],
+                                                        inkey < response.rows + 1 ? response.content[response.field[key]][inkey - 1] : null)
                         } else if (response.field[key] === 'CONFIGURATION') {
                             var input = document.createElement('textarea')
                         } else {
@@ -143,15 +118,15 @@ function buildContentArea(mode, response, type, parameters) {
                         cell.appendChild(input)
                     } else if (inkey > 0 && inkey < response.rows + 1) {
                         var container = cell.appendChild(document.createElement('div'))
-                        if(!mode){
+                        if(!response.table){
                             var div  = cell.appendChild(document.createElement('div'))
                             var button = div.appendChild(document.createElement('button'))
                             button.innerHTML = 'Edit'
                             button.onclick = function (t){
                                 return function(){
-                                    return show(type.charAt(0) + response.field[t].charAt(0),
-                                        header[t] + ' Attachment',
-                                        JSON.stringify(parameters))
+                                    show(type.charAt(0) + response.field[t].charAt(0),
+                                         header[t] + ' Attachment',
+                                         JSON.stringify(parameters))
                                 }
                             }(key)
                         }
@@ -179,7 +154,7 @@ function buildContentArea(mode, response, type, parameters) {
 	                }
                 }
             } else {
-                var controls = createControls(response.action, parameters, (mode ? row : row.parentNode), type)
+                var controls = createControls(response.action, parameters, (response.table ? row : row.parentNode), type)
                 if (inkey === response.rows + 1) {
                     if(controls.hasOwnProperty('INSERT')) cell.appendChild(controls['INSERT'])
                 } else if (inkey > 0 && inkey < response.rows + 1) {

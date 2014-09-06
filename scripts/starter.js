@@ -173,8 +173,8 @@ notification.prototype.set = function (message){
 function customizeTable(table,type, response){
     switch(type){
         case 'LE':
-            var object = document.querySelector('#' + type +' .body > div:first-child select')
-            document.querySelector('#' + type +' .body > div:first-child input').checked = object.options[object.selectedIndex].title == 'Y'
+            var object = document.querySelector('#' + type +' .body div:first-child select')
+            document.querySelector('#' + type +' .body div:first-child input').checked = object.options[object.selectedIndex].title == 'Y'
             if( response.content.ACTUAL != null){
                 Object.keys(response.content.ACTUAL).forEach(function(k) {
                     if (response.content.ACTUAL[k]) {
@@ -200,6 +200,7 @@ function customizeTable(table,type, response){
 						    ){
 						    input[k].options[i].selected = true
 						    input[k].options[i].label += ' (' + response.content.APP_DESCRIPTION[0] + ')'
+						    input[k].dispatchEvent(new Event('change'))
 					    }
 				    }
 			    } else {
@@ -208,11 +209,17 @@ function customizeTable(table,type, response){
 		    })
 	    case 'AS':
 	    case 'CS':
-		    var button = document.createElement('button')
 		    var schedule = table.querySelector('select[name="SCHEDULE"]')
+		    var button = document.createElement('button')
 		    button.innerHTML = 'Show'
 		    button.onclick = function () {
-			    return show('LE', null, null)
+			    show('LE', null, schedule)
+		    }
+		    schedule.parentNode.appendChild(button)
+		    var button = document.createElement('button')
+		    button.innerHTML = 'Exclusions'
+		    button.onclick = function () {
+			    show('EC','Calendar', null)
 		    }
 		    schedule.parentNode.appendChild(button)
 		    break
@@ -233,9 +240,37 @@ function customizeTable(table,type, response){
                  }(table.rows[i])*/
 
             }
-            break
+		    break
         default : return
     }
+}
+
+function customizeHead(table,type){
+	switch(type){
+		case 'LE':
+			var select = table.querySelector('select')
+			select.onchange = function () {
+				show('LE','Schedules & Events', select)
+			}
+			select.name = 'SCHEDULE'
+			select.disabled = false
+			select.onchange()
+
+			var button = document.createElement('button')
+			button.innerHTML = 'Add'
+			button.onclick = function(){
+				show('SA','Add Schedule',null)
+			}
+			select.parentNode.appendChild(button)
+			var button = document.createElement('button')
+			button.innerHTML = 'Edit'
+			button.onclick = function(){
+				show('SC','Edit Schedule',select)
+			}
+			select.parentNode.appendChild(button)
+			break
+		default : return
+	}
 }
 
 function show(type,name,object){
@@ -250,7 +285,7 @@ function show(type,name,object){
     if(Object.keys(parameters).length > 0){
         var json = JSON.stringify(parameters)
         post = "data=" + encodeURIComponent(json)
-	    var affix = name.replace(/ /g,'')
+	    var affix = !name ? '' : name.replace(/ /g,'')
 	    Object.keys(parameters).forEach(
 		    function(k){
 			    affix += '/' + parameters[k]
@@ -258,7 +293,7 @@ function show(type,name,object){
 	    )
     }
     var xmlhttp = getXmlHttp()
-    xmlhttp.open('POST', '/Popup/Show/Type/' + type,true)
+    xmlhttp.open('POST', '/Popup/' + (!name ? 'getHead' : 'getBody') + '/Type/' + type, true)
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4) {
             if(xmlhttp.status == 200) {
@@ -266,21 +301,18 @@ function show(type,name,object){
                /* try{*/
                     var response = JSON.parse(json)
                     var block = createPopup(type)
+	                var table = buildTable(response, type, parameters)
                     if (!name ) {
-                        var table = buildHeadArea(response,document.querySelector('select[name=SCHEDULE]').value)
 	                    document.querySelector('#' + type + ' .body > div:first-child').appendChild(table)
-	                    table.querySelector('select').onchange()
+	                    customizeHead(table,type)
                     } else {
 	                    location.hash = affix
-	                    var table = buildContentArea(response.table, response, type, parameters)
                         var width = response.table ? (response.columns + 1) * 11 : (response.rows + 2) * 20
 	                    block.querySelector('#' + type + ' .body').style.width = width + '%'
 	                    block.querySelector('#' + type + ' .header').style.width = name.length + 5 + '%'
 	                    block.querySelector('#' + type + ' .header h2').innerHTML = name
-
-	                    customizeTable(table,type,response)
-
 	                    document.querySelector('#' + type + ' .body > div:last-child ').appendChild(table)
+	                    customizeTable(table,type,response)
                     }
                 /*}catch(e){
                    notification.set(json)
@@ -331,15 +363,11 @@ function postInput(parameters,element,type,action){
     xmlhttp.onreadystatechange=function(){
         if (xmlhttp.readyState == 4){
             if(xmlhttp.status == 200){
-                var json = xmlhttp.responseText
-                if(json == ''){
-                    if (type == 'AS' || type == 'IS' || type == 'CS'){
-                        location.reload()
-                    }else{
-                        show(type, document.querySelector('#' + type + ' h2').innerHTML, viewParam)
-                    }
+                if(xmlhttp.responseText == ''){
+                    if (type == 'AS' || type == 'IS' || type == 'CS') location.reload()
+                    else show(type, document.querySelector('#' + type + ' h2').innerHTML, viewParam)
                 } else {
-                    notification.set(json)
+                    notification.set(xmlhttp.responseText)
                 }
             }
         }
