@@ -335,7 +335,6 @@ function collectInput(element,parameters){
         p[input[i].name] = value
     }
     return p
-
 }
 
 function postInput(parameters,element,type,action){
@@ -358,6 +357,7 @@ function postInput(parameters,element,type,action){
 
     var json = JSON.stringify(parameters)
     var par = "data=" + encodeURIComponent(json)
+
     var xmlhttp = getXmlHttp()
     xmlhttp.open('POST','/Popup/Perform/Type/' + type, true)
     xmlhttp.onreadystatechange=function(){

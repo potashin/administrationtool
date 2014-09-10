@@ -314,7 +314,7 @@ table.flipped textarea {
 }
 
 #main select { float: left; }
-#main table { display: none;}
+#main .details ~ div { display: none;}
 
 #main th:nth-child(1) { width: 5% }
 #main th:nth-child(2) { width: 15% }

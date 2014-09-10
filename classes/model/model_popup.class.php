@@ -75,7 +75,6 @@
 						'IS_ENABLED' => false,
 						'HOSTID'     => false,
 						'DESCRIPTION' => true,
-					    'ATTACHED' =>false
 					);
 					$dataObject->hidden = array (
 						'DESCRIPTION' => 'HOSTID'
@@ -83,7 +82,7 @@
 					$dataObject->headers = false;
 					$dataObject->action['DELETE'] = false;
 					$dataObject->action['INSERT'] = false;
-					//$dataObject->action['UPDATE'] = false;
+					$dataObject->action['UPDATE'] = false;
 					break;
 				case 'AE' :
 					$query = "SELECT EVENTNAME
@@ -112,20 +111,12 @@
 							  WHERE APP_NAME = :APP_NAME
 							    AND ID = :INSTANCEID";
 
-					/*$dataObject->ignore = array (
-						'APP_NAME'   => false,
-						'ID'         => false,
-						'IS_ENABLED' => false,
-						'HOSTID'     => false,
-						'DESCRIPTION' => true,
-					);*/
 					$dataObject->ignore = array (
 						'APP_NAME'   => false,
 						'ID'         => false,
 						'IS_ENABLED' => false,
 						'HOSTID'     => false,
 						'DESCRIPTION' => true,
-						'ATTACHED' =>false
 					);
 					$dataObject->hidden = array (
 						'DESCRIPTION' => 'HOSTID'
@@ -133,7 +124,7 @@
 					$dataObject->headers = false;
 					$dataObject->action['DELETE'] = false;
 					$dataObject->action['INSERT'] = false;
-					//$dataObject->action['UPDATE'] = false;
+					$dataObject->action['UPDATE'] = false;
 					break;
 				case 'IE' :
 					$query = "SELECT EVENTNAME
@@ -198,7 +189,7 @@
 				default :
 					return 'Undefined show request';
 			}
-			return json_encode($dataObject->getDataObject($query, $parameter));
+			return json_encode($dataObject->getDataObject($query, $parameter),JSON_FORCE_OBJECT);
 		}
 
 		public function getHead($type, $parameter = array ()){

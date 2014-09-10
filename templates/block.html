@@ -20,45 +20,46 @@
 	{
 ?>
 	<div>
-		<button class="details area"
-		        onclick="showDetails(this.parentNode.querySelector('table'))">
-			<span ><?php $this->showMessage('INS_TOTAL') ;?><?php echo $value['SUMMARY']['TOTAL'] ?></span>
+		<button class="details area">
+			<span ><?php echo $LANG['INS_TOTAL'] ;?><?php echo $value['SUMMARY']['TOTAL'] ?></span>
 			<span style="color:
 			<?php
 				if ($value['SUMMARY']['LAUNCHED'] > 0) echo 'darkgreen';
 				else echo 'black';
 			?>
-				"><?php $this->showMessage('INS_LAUNCHED') ;?><?php echo $value['SUMMARY']['LAUNCHED'] ?>
+				"><?php echo $LANG['INS_LAUNCHED'] ;?><?php echo $value['SUMMARY']['LAUNCHED'] ?>
 			</span>
 			<span style="color:
 			<?php
 				if ($value['SUMMARY']['PENDING'] > 0) echo 'darkred';
 				else echo 'black';
 			?>
-				"><?php $this->showMessage('INS_PENDING') ;?><?php echo $value['SUMMARY']['PENDING'] ?>
+				"><?php echo $LANG['INS_PENDING'] ;?><?php echo $value['SUMMARY']['PENDING'] ?>
 			</span>
 		</button>
-		<table>
-			<thead>
-				<tr>
-					<th>State</th>
-					<th>Instance</th>
-					<th>Description</th>
-					<th>HeartBeat</th>
-					<th>Scheduled at</th>
-					<th>Host</th>
-					<th>Pending action</th>
-				</tr>
-			</thead>
-			<tbody>
-			<?php
-				foreach ($value['CONTENT'] as $v)
-				{
-					include('./templates/row.html');
-				}
-			?>
-			</tbody>
-		</table>
+		<div>
+			<table >
+				<thead>
+					<tr>
+						<th>State</th>
+						<th>Instance</th>
+						<th>Description</th>
+						<th>HeartBeat</th>
+						<th>Scheduled at</th>
+						<th>Host</th>
+						<th>Pending action</th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php
+					foreach ($value['CONTENT'] as $v)
+					{
+						include('./templates/row.html');
+					}
+				?>
+				</tbody>
+			</table>
+		</div>
 	</div>
 <?php
 	}

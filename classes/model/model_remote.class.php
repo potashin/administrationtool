@@ -27,7 +27,13 @@ class Model_Remote extends Model
 					->execute($data)
 					->fetch();
 		if(empty($row)){
-			throw new \Exception('<p>This action is forbidden. Possible reasons: </p><ul><li>Parameters are set inaccurate</li> <li>The action is not allowed in the application or instance settings</li><li>Action is not actual anymore</li></ul>');
+			throw new \Exception('
+				<p>This action is forbidden. Possible reasons: </p>
+				<ul>
+					<li>Parameters are set inaccurate</li>
+					<li>The action is not allowed in the application or instance settings</li>
+					<li>Action is not actual anymore</li>
+				</ul>');
 		}else{
 			$ssh = new \Classes\Core\SSH($row['FQDN']) ;
 			$input = "cd {$row['PATH']} && {$row['COMMAND']} {$row['PARAMETERS']} {$row['INSTANCEID']}";

@@ -2,17 +2,15 @@
 
 namespace Classes\View;
 
-class View extends \Classes\Core\Lang
+class View
 {
-
 	private $content;
+	
+	private $lang;
 
 	public function __construct($type) {
-		if(file_exists($_SERVER['DOCUMENT_ROOT'] . '/lang/' . LANG . '/' . strtolower($type) . '.php')){
-			include($_SERVER['DOCUMENT_ROOT'] . '/lang/' . LANG . '/' . strtolower($type) . '.php');
-			$this->lang = $LANG;
-		}
 		$this->content = $_SERVER['DOCUMENT_ROOT'] . '/templates/' . strtolower($type) . '.html';
+		$this->lang = $_SERVER['DOCUMENT_ROOT'] . '/lang/' . LANG . '/' . strtolower($type) . '.php';
 	}
 
 	public function generate($data)

@@ -1,23 +1,20 @@
+<?php
+	include($this->lang);
+?>
 <!DOCTYPE html>
 <html>
     <head>
-        <title><?php $this->showMessage('TITLE') ?></title>
+        <title><?php echo $LANG['TITLE'] ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="stylesheet" type="text/css" href="/css/styles.css">
 	    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-        <script type="text/javascript" src="/scripts/containers.js"></script>
-        <script type="text/javascript" src="/scripts/starter.js"></script>
+	    <script type="text/javascript" src="/jquery/container.js"></script>
+	    <script type="text/javascript" src="/jquery/main.js"></script>
     </head>
-    <script>
-	    var notification = new notification()
-	    setInterval(function(){
-		    getHeartBeat()
-	    }, 15000);
-    </script>
     <body >
         <div id="main" >
             <div class="shadow">
-                <h3 ><?php $this->showMessage('COPYRIGHT')?></h3>
+                <h3 ><?php echo $LANG['COPYRIGHT'] ?></h3>
             </div>
             <?php
                 foreach ($data as $value)
@@ -26,7 +23,7 @@
                 }
             ?>
             <div class="shadow area">
-	            <button class="details area" onclick="show('CS',this.innerHTML,null)"><?php $this->showMessage('ADD')?></button>
+	            <button class="details area" onclick="show('CS',this.innerHTML,null)"><?php echo $LANG['ADD']?></button>
             </div>
         </div>
     </body>
