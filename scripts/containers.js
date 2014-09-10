@@ -72,7 +72,6 @@ function createPopup(id) {
 	    body.appendChild(document.createElement('div'))
 	    body.appendChild(document.createElement('div')).style.maxHeight = 0.6 * window.innerHeight + 'px'
     }
-
     return block
 }
 
@@ -166,7 +165,3 @@ function buildTable(response, type, parameters) {
     }
     return table
 }
-
-
-
-

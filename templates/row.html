@@ -12,7 +12,7 @@
 		<button onclick="show('IS','Instance Settings','<?php echo htmlspecialchars(json_encode($object,JSON_FORCE_OBJECT)); ?>')"><?php echo $v['INSTANCEID'] ?></button>
 	</td>
 	<td><?php echo $v['DESCRIPTION'] ?></td>
-	<td data-stamp="LAST_HEARTBEAT"><?php echo $v['LAST_HEARTBEAT'] ?></td>
+	<td data-stamp="LAST_HEARTBEAT"><script >document.write(correctDate('<?php echo $v['LAST_HEARTBEAT'] ?>'))</script></td>
 	<td><?php echo $v['EVENTTIME'] ?></td>
 <?php
 	if($v['COMMAND'] != '' && $v['PARAMETERS'])
@@ -33,7 +33,7 @@
 			</select>
 		</td>
 		<td>
-			<button ><?php echo $v['EVENTNAME'] ?></button>
+			<button onClick="doSSH('<?php echo $value['SUMMARY']['APP_NAME'] ?>','<?php echo $v['INSTANCEID'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
 		</td>
 <?php
 		}
@@ -46,7 +46,7 @@
 			</select>
 		</td>
 		<td>
-			<button ><?php echo $v['EVENTNAME'] ?></button>
+			<button onClick="doSSH('<?php echo $value['SUMMARY']['APP_NAME'] ?>','<?php echo $v['INSTANCEID'] ?>')"><?php echo $v['EVENTNAME'] ?></button>
 		</td>
 <?php
 		}

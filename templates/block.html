@@ -20,7 +20,7 @@
 	{
 ?>
 	<div>
-		<button class="details area">
+		<button class="details area" onclick="showDetails(this.parentNode.querySelector('div'))">
 			<span ><?php echo $LANG['INS_TOTAL'] ;?><?php echo $value['SUMMARY']['TOTAL'] ?></span>
 			<span style="color:
 			<?php

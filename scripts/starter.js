@@ -20,7 +20,7 @@ function getXmlHttp(){
 }
 
 function doSSH(app,id){
-    var row = document.getElementById(app + '_' + id)
+    var row = document.getElementById(app + '-_-' + id)
     var xmlhttp = getXmlHttp()
     var parameters = {
         'HOST' : row.querySelector('select').value,
@@ -208,6 +208,18 @@ function customizeTable(table,type, response){
 			    }
 		    })
 	    case 'AS':
+		    var button = document.createElement('button')
+		    button.innerHTML = 'Show'
+		    button.onclick = function () {
+			    show('LH', 'Host Settings', null)
+		    }
+		    table.querySelector('tr:nth-child(7) div:last-child').appendChild(button)
+		    var button = document.createElement('button')
+		    button.innerHTML = 'Show'
+		    button.onclick = function () {
+			    show('ES', 'Event Settings', null)
+		    }
+		    table.querySelector('tr:nth-child(8) div:last-child').appendChild(button)
 	    case 'CS':
 		    var schedule = table.querySelector('select[name="SCHEDULE"]')
 		    var button = document.createElement('button')
