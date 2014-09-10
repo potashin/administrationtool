@@ -5,7 +5,7 @@ namespace Classes\View;
 class View
 {
 	private $content;
-	
+
 	private $lang;
 
 	public function __construct($type) {

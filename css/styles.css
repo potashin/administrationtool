@@ -205,10 +205,10 @@ table.flipped tr td:nth-child(2) div {
 	display: inline-block;
 }
 table.flipped tr td:nth-child(2) div:first-child {
-	width:calc(90% - 150px)
+	width:calc(90% - 170px)
 }
 table.flipped tr td:nth-child(2) div:last-child {
-	width:  130px;
+	width:  150px;
 	padding-left: 20px;
 }
 
