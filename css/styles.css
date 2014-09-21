@@ -192,22 +192,20 @@ table.flipped tr td span:nth-child(1):not(:empty) ~ span:nth-child(2):not(:empty
 	color: black;
 }
 
-table.flipped tr td:nth-child(1) {
+table.flipped tr td:first-child {
 	width: 120px;
 	padding-left: 5%;
-
 }
-table.flipped tr td:nth-child(2) {
-	width: calc(95% - 120px);
+table.flipped tr td:last-child {
 	padding-right: 5%;
 }
-table.flipped tr td:nth-child(2) div {
+table.flipped tr td:last-child div {
 	display: inline-block;
 }
-table.flipped tr td:nth-child(2) div:first-child {
+table.flipped tr td:last-child div:first-child {
 	width:calc(90% - 170px)
 }
-table.flipped tr td:nth-child(2) div:last-child {
+table.flipped tr td:last-child div:last-child {
 	width:  150px;
 	padding-left: 20px;
 }

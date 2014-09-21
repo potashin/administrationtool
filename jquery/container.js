@@ -45,9 +45,9 @@ function buildTable(data, type, parameters) {
 		id : type + '_' + (data.table ? 'original' : 'flipped')
 	})
 	var rows = data.rows + 1 + (data.action.INSERT ? 1 : 0)
-	var columns = Object.keys(data.field).length + (data.action.INSERT ||data.action.DELETE || data.action.UPDATE ? 1 : 0)
+	var columns = Object.keys(data.field).length + (data.action.INSERT || data.action.DELETE || data.action.UPDATE ? 1 : 0)
 	if (!data.table) {
-		columns = [rows + (data.action.DELETE || data.action.UPDATE ? 1 : 0), rows = columns][0]
+		columns = [rows, rows = columns][0]
 	}
 	var header = {}
 	for (var i = (data.headers ? 0 : 1); i < rows; i++) {
