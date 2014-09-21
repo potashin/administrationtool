@@ -13,7 +13,7 @@ $(window).load(function(){
 				'HOST' : $(row).find('select').prop('value'),
 				'APP_NAME' : main[0],
 				'INSTANCE' : main[1],
-				'COMMAND' : 1213/*$(this).html()*/
+				'COMMAND' :$(this).html()
 			}
 			$.ajax({
 				type : 'POST',
